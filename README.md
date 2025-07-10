@@ -1,3 +1,11 @@
 # MaqEspinhoCork 2025
-New MaqEspinhoCork web application, built from scratch, using React, ChakraUI, Python, Flask and AWS.
-Work in progress.
+New MaqEspinhoCork web application, built from scratch
+
+Stack: 
+ - React
+ - Chakra UI
+ - Python
+ - Flask
+ - AWS
+
+Work in progress
