@@ -1,15 +1,26 @@
-import { Button, Center, Box } from '@chakra-ui/react'; // Importa os componentes do Chakra UI
-
+import { Button, Center, Box, Heading, Text, VStack } from '@chakra-ui/react';
 function App() {
   return (
-    // O componente Center é do Chakra UI e centraliza o seu conteúdo
-    <Center h="100vh" bg="gray.50"> {/* h="100vh" é 100% da altura da viewport, bg="gray.50" é um cinzento claro */}
-      <Box p="6" boxShadow="lg" bg="white" borderRadius="md"> {/* p é padding, boxShadow é uma sombra, borderRadius é o arredondar dos cantos */}
-        <Button colorScheme="teal" size="lg" onClick={() => alert('Olá do Chakra UI!')}>
-          Clica-me!
-        </Button>
-      </Box>
-    </Center>
+
+    <VStack spacing={4} p={8}>
+
+      <Heading as="h1" size="2xl" color="teal.500">
+        MaqEspinhoCork 2025
+      </Heading>
+
+      <Text fontSize="xl" color="gray.700">
+        Site em construção
+      </Text>
+
+      <Center h="100vh" bg="" w="100vw">
+        <Box p="6" boxShadow="lg" bg="white" borderRadius="md">
+          <Button colorScheme="teal" size="lg" onClick={() => alert('Olá do Chakra UI!')}>
+            Clica-me!
+          </Button>
+        </Box>
+      </Center>
+      
+    </VStack>
   );
 }
 
