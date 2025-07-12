@@ -1,14 +1,16 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import './index.css';
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
 import App from './App.jsx';
 
-import { ChakraProvider } from '@chakra-ui/react'; 
+// Importa o ThemeProvider e o createTheme do Material UI
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+// Cria um tema Material UI padrão
+const theme = createTheme();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ChakraProvider>
+    <ThemeProvider theme={theme}>
       <App />
-    </ChakraProvider>
+    </ThemeProvider>
   </StrictMode>,
-);
+)
