@@ -25,7 +25,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useState } from 'react';
 
-// --- Componentes Estilizados para a Barra de Pesquisa ---
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -33,7 +32,6 @@ const Search = styled('div')(({ theme }) => ({
   '&:hover': {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
-  // Sem flexGrow aqui. A largura é controlada pelo StyledInputBase.
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -48,22 +46,22 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
-  width: '100%', // Para preencher a largura do 'Search' styled component
+  width: '100%',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('sm')]: {
-      width: '20ch', // Largura padrão em desktop
+      width: '20ch',
       '&:focus': {
-        width: '30ch', // Aumenta ao focar em desktop
+        width: '30ch',
       },
     },
   },
 }));
 
-// --- Componente da AppBar ---
+
 function AppBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
@@ -95,7 +93,7 @@ function AppBar() {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        MaqEspinhoCork
+        MEC
       </Typography>
       <hr style={{ margin: '8px 0', border: 'none', borderBottom: '1px solid #ddd' }} />
       <List>
@@ -113,7 +111,6 @@ function AppBar() {
   return (
     <MuiAppBar position="fixed">
       <Toolbar>
-        {/* Ícone de menu para mobile */}
         <IconButton
           size="large"
           edge="start"
@@ -125,10 +122,7 @@ function AppBar() {
           <MenuIcon />
         </IconButton>
 
-        {/* Grupo Esquerdo: Título, Links, Pesquisa */}
-        {/* Este Box continua a agrupar e flexGrow empurra o Admin Icon para a direita */}
         <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-          {/* Título do site como Link para a root (1º elemento à esquerda em desktop) */}
           <Typography
             variant="h6"
             noWrap
@@ -136,11 +130,10 @@ function AppBar() {
             sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}
           >
             <Link href="/" color="inherit" underline="none">
-              MaqEspinhoCork
+              MEC
             </Link>
           </Typography>
 
-          {/* Links de navegação para desktop/tablet */}
           <Box sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}>
             {navItems.map((item) => (
               <Link
@@ -155,7 +148,6 @@ function AppBar() {
             ))}
           </Box>
 
-          {/* Barra de Pesquisa (agora sem flexGrow aqui, apenas com margem à direita) */}
           <Search sx={{ mr: 2 }}>
             <SearchIconWrapper>
               <SearchIcon />
@@ -167,8 +159,7 @@ function AppBar() {
           </Search>
         </Box>
 
-        {/* Ícone/Link da Área de Admin (extrema direita) */}
-        <Box sx={{ ml: { xs: 'auto', sm: 0 } }}> {/* ml: 'auto' em xs empurra para a direita */}
+        <Box sx={{ ml: { xs: 'auto', sm: 0 } }}>
           <IconButton
             size="large"
             edge="end"
@@ -181,7 +172,6 @@ function AppBar() {
         </Box>
       </Toolbar>
 
-      {/* Drawer (Menu Lateral) para Mobile */}
       <nav>
         <Drawer
           variant="temporary"
@@ -199,7 +189,6 @@ function AppBar() {
         </Drawer>
       </nav>
 
-      {/* Diálogo de Login */}
       <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog}>
         <DialogTitle>Login de Administrador</DialogTitle>
         <DialogContent>
