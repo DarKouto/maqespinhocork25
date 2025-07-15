@@ -18,11 +18,6 @@ function App() {
             O teu site está a ganhar forma. Esta é a área de conteúdo principal.
           </Typography>
 
-          {Array.from({ length: 50 }).map((_, i) => (
-            <Typography key={i} variant="body1" component="p">
-              Conteúdo de exemplo para testar o scroll e a AppBar fixa. Linha {i + 1}.
-            </Typography>
-          ))}
         </Box>
       </Box>
     </>

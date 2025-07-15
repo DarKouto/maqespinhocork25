@@ -1,5 +1,5 @@
 import {
-  AppBar as MuiAppBar, // Renomeado para evitar conflito com o nome do ficheiro
+  AppBar as MuiAppBar,
   Toolbar,
   Typography,
   Box,
@@ -7,11 +7,25 @@ import {
   InputBase,
   alpha,
   styled,
+  Link,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import { useState } from 'react';
 
-// --- Componentes Estilizados para a Barra de Pesquisa (dentro deste ficheiro) ---
+// --- Componentes Estilizados para a Barra de Pesquisa ---
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -19,12 +33,7 @@ const Search = styled('div')(({ theme }) => ({
   '&:hover': {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
+  // Sem flexGrow aqui. A largura é controlada pelo StyledInputBase.
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -39,16 +48,16 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
-  width: '100%',
+  width: '100%', // Para preencher a largura do 'Search' styled component
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('sm')]: {
-      width: '12ch',
+      width: '20ch', // Largura padrão em desktop
       '&:focus': {
-        width: '20ch',
+        width: '30ch', // Aumenta ao focar em desktop
       },
     },
   },
@@ -56,38 +65,167 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 // --- Componente da AppBar ---
 function AppBar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [openLoginDialog, setOpenLoginDialog] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const handleClickOpenLoginDialog = () => {
+    setOpenLoginDialog(true);
+  };
+
+  const handleCloseLoginDialog = () => {
+    setOpenLoginDialog(false);
+  };
+
+  const handleLogin = () => {
+    alert('Tentativa de Login (verifica a consola para valores)!');
+    console.log('Username:', document.getElementById('username-input').value);
+    console.log('Password:', document.getElementById('password-input').value);
+    handleCloseLoginDialog();
+  };
+
+  const navItems = [
+    { name: 'Sobre Nós', path: '/sobre-nos' },
+    { name: 'Contactos', path: '/contactos' },
+  ];
+
+  const drawer = (
+    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+      <Typography variant="h6" sx={{ my: 2 }}>
+        MaqEspinhoCork
+      </Typography>
+      <hr style={{ margin: '8px 0', border: 'none', borderBottom: '1px solid #ddd' }} />
+      <List>
+        {navItems.map((item) => (
+          <ListItem key={item.name} disablePadding>
+            <ListItemButton component={Link} href={item.path} sx={{ textAlign: 'center' }}>
+              <ListItemText primary={item.name} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+
   return (
-    <MuiAppBar position="fixed"> {/* Usamos MuiAppBar para o componente do MUI */}
+    <MuiAppBar position="fixed">
       <Toolbar>
+        {/* Ícone de menu para mobile */}
         <IconButton
           size="large"
           edge="start"
           color="inherit"
           aria-label="open drawer"
-          sx={{ mr: 2 }}
+          sx={{ mr: 2, display: { xs: 'block', sm: 'none' } }}
+          onClick={handleDrawerToggle}
         >
           <MenuIcon />
         </IconButton>
 
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
-          sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
-        >
-          MaqEspinhoCork
-        </Typography>
+        {/* Grupo Esquerdo: Título, Links, Pesquisa */}
+        {/* Este Box continua a agrupar e flexGrow empurra o Admin Icon para a direita */}
+        <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+          {/* Título do site como Link para a root (1º elemento à esquerda em desktop) */}
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}
+          >
+            <Link href="/" color="inherit" underline="none">
+              MaqEspinhoCork
+            </Link>
+          </Typography>
 
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Pesquisar..."
-            inputProps={{ 'aria-label': 'search' }}
-          />
-        </Search>
+          {/* Links de navegação para desktop/tablet */}
+          <Box sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}>
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.path}
+                color="inherit"
+                underline="none"
+                sx={{ mx: 1 }}
+              >
+                <Typography variant="button">{item.name}</Typography>
+              </Link>
+            ))}
+          </Box>
+
+          {/* Barra de Pesquisa (agora sem flexGrow aqui, apenas com margem à direita) */}
+          <Search sx={{ mr: 2 }}>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Pesquisar..."
+              inputProps={{ 'aria-label': 'search' }}
+            />
+          </Search>
+        </Box>
+
+        {/* Ícone/Link da Área de Admin (extrema direita) */}
+        <Box sx={{ ml: { xs: 'auto', sm: 0 } }}> {/* ml: 'auto' em xs empurra para a direita */}
+          <IconButton
+            size="large"
+            edge="end"
+            color="inherit"
+            aria-label="admin area"
+            onClick={handleClickOpenLoginDialog}
+          >
+            <AccountCircle />
+          </IconButton>
+        </Box>
       </Toolbar>
+
+      {/* Drawer (Menu Lateral) para Mobile */}
+      <nav>
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true,
+          }}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </nav>
+
+      {/* Diálogo de Login */}
+      <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog}>
+        <DialogTitle>Login de Administrador</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="username-input"
+            label="Utilizador"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+          <TextField
+            margin="dense"
+            id="password-input"
+            label="Password"
+            type="password"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseLoginDialog}>Cancelar</Button>
+          <Button onClick={handleLogin}>Entrar</Button>
+        </DialogActions>
+      </Dialog>
     </MuiAppBar>
   );
 }
