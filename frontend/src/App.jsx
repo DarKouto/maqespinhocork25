@@ -1,5 +1,6 @@
 import { Box, Typography, Toolbar } from '@mui/material';
 import AppBar from './components/AppBar'
+import HeroSection from './components/HeroSection';
 
 function App() {
   return (
@@ -7,7 +8,10 @@ function App() {
       <Box sx={{ flexGrow: 1 }}>
 
         <AppBar />
-        <Toolbar /> 
+        <Toolbar />
+
+        <HeroSection /> {/* <--- Adiciona a tua Hero Section aqui */}
+
         <Box sx={{ p: 3 }}>
           <Typography variant="h4" gutterBottom>
             Bem-vindo à MEC: MaqEspinhoCork v2025!
