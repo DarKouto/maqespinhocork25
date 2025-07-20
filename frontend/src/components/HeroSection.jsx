@@ -31,7 +31,7 @@ function HeroSection() {
       }}
     >
       <Typography variant="h3" component="h1" gutterBottom sx={{ maxWidth: '800px' }}>
-        MEC: MaqEspinhoCork teste <br/>
+        MEC: MaqEspinhoCork<br/>
         Compra, venda e manutenção de todos os equipamentos industriais.
       </Typography>
 
