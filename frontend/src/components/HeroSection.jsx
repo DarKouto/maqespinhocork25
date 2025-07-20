@@ -2,7 +2,7 @@ import { Box, Typography, Button } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 function HeroSection() {
-  const backgroundImage = './src/images/fundo-placeholder.jpg';
+  const backgroundImage = 'http://www.maqespinhocork.com/fundo.jpg';
 
   const handleScrollDown = () => {
     window.scrollBy({
