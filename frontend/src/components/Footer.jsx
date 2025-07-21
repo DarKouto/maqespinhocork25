@@ -19,7 +19,7 @@ function Footer() {
       }}
     >
       <Typography variant="body2">
-        Copyright © {currentYear}: MaqEspinhoCork.com - Desenvolvido por{' '}
+        Copyright © {currentYear}: MaqEspinhoCork.com - {' '}
         <Link
           href={githubLink}
           color="inherit" // Mantém a cor do texto do footer
@@ -27,7 +27,7 @@ function Footer() {
           target="_blank" // Abre o link numa nova aba
           rel="noopener noreferrer" // Prática de segurança para links externos
         >
-          Daniel Couto (DarKouto)
+          Desenvolvido por Daniel Couto (DarKouto)
         </Link>
       </Typography>
     </Box>
