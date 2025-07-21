@@ -1,6 +1,7 @@
 import { Box, Typography, Toolbar } from '@mui/material';
 import AppBar from './components/AppBar'
 import HeroSection from './components/HeroSection';
+import Footer from './components/Footer';
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
             O site está a ganhar forma. Esta é a área de conteúdo principal.
           </Typography>
         </Box>
-
+        <Footer />
       </Box>
     </>
   )
