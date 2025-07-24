@@ -7,7 +7,7 @@ import {
   InputBase,
   alpha,
   styled,
-  Link,
+  Link as MuiLink, // Importa o Link do Material UI como MuiLink
   Drawer,
   List,
   ListItem,
@@ -24,7 +24,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom'; // Importa o Link do react-router-dom
 
+// --- Componentes Estilizados para a Barra de Pesquisa ---
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -61,7 +63,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-
+// --- Componente da AppBar ---
 function AppBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
@@ -93,13 +95,17 @@ function AppBar() {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        MEC
+        {/* Usar MuiLink com component=RouterLink para o logo no drawer */}
+        <MuiLink component={RouterLink} to="/" color="inherit" underline="none">
+          MEC
+        </MuiLink>
       </Typography>
       <hr style={{ margin: '8px 0', border: 'none', borderBottom: '1px solid #ddd' }} />
       <List>
         {navItems.map((item) => (
           <ListItem key={item.name} disablePadding>
-            <ListItemButton component={Link} href={item.path} sx={{ textAlign: 'center' }}>
+            {/* Usar ListItemButton com component=RouterLink */}
+            <ListItemButton component={RouterLink} to={item.path} sx={{ textAlign: 'center' }}>
               <ListItemText primary={item.name} />
             </ListItemButton>
           </ListItem>
@@ -111,6 +117,7 @@ function AppBar() {
   return (
     <MuiAppBar position="fixed">
       <Toolbar>
+        {/* Ícone de menu para mobile */}
         <IconButton
           size="large"
           edge="start"
@@ -122,32 +129,39 @@ function AppBar() {
           <MenuIcon />
         </IconButton>
 
+        {/* Grupo Esquerdo: Título, Links, Pesquisa */}
         <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+          {/* Título do site como Link para a root (1º elemento à esquerda em desktop) */}
           <Typography
             variant="h6"
             noWrap
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}
           >
-            <Link href="/" color="inherit" underline="none">
+            {/* Usar MuiLink com component=RouterLink para o logo na AppBar */}
+            <MuiLink component={RouterLink} to="/" color="inherit" underline="none">
               MEC
-            </Link>
+            </MuiLink>
           </Typography>
 
+          {/* Links de navegação para desktop/tablet */}
           <Box sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}>
             {navItems.map((item) => (
-              <Link
+              // Usar MuiLink com component=RouterLink para os links de navegação
+              <MuiLink
                 key={item.name}
-                href={item.path}
+                component={RouterLink} // <--- A chave para a integração
+                to={item.path}
                 color="inherit"
                 underline="none"
                 sx={{ mx: 1 }}
               >
                 <Typography variant="button">{item.name}</Typography>
-              </Link>
+              </MuiLink>
             ))}
           </Box>
 
+          {/* Barra de Pesquisa */}
           <Search sx={{ mr: 2 }}>
             <SearchIconWrapper>
               <SearchIcon />
@@ -159,6 +173,7 @@ function AppBar() {
           </Search>
         </Box>
 
+        {/* Ícone/Link da Área de Admin (extrema direita) */}
         <Box sx={{ ml: { xs: 'auto', sm: 0 } }}>
           <IconButton
             size="large"
@@ -172,6 +187,7 @@ function AppBar() {
         </Box>
       </Toolbar>
 
+      {/* Drawer (Menu Lateral) para Mobile */}
       <nav>
         <Drawer
           variant="temporary"
@@ -189,6 +205,7 @@ function AppBar() {
         </Drawer>
       </nav>
 
+      {/* Diálogo de Login */}
       <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog}>
         <DialogTitle>Login de Administrador</DialogTitle>
         <DialogContent>
