@@ -5,6 +5,6 @@ New MaqEspinhoCork web application, built from scratch, using:
  - Python
  - Flask
  - MySQL
- - AWS
+ - Vercel
 
 Work in progress
