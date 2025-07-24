@@ -86,7 +86,7 @@ function AppBar() {
   };
 
   const navItems = [
-    { name: 'Sobre Nós', path: '/sobre-nos' },
+    { name: 'Máquinas', path: '/' },
     { name: 'Contactos', path: '/contactos' },
   ];
 

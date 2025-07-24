@@ -2,7 +2,7 @@ import { Box, Typography, Toolbar } from '@mui/material';
 import AppBar from './components/AppBar'
 import HeroSection from './components/HeroSection';
 import Footer from './components/Footer';
-import Contactos from './pages/Contactos'
+import Contactos from './components/Contactos'
 
 function App() {
   return (
