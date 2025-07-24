@@ -2,6 +2,7 @@ import { Box, Typography, Toolbar } from '@mui/material';
 import AppBar from './components/AppBar'
 import HeroSection from './components/HeroSection';
 import Footer from './components/Footer';
+import Contactos from './pages/Contactos'
 
 function App() {
   return (
@@ -10,6 +11,8 @@ function App() {
 
         <AppBar />
         <Toolbar />
+
+        <Contactos />
 
         <HeroSection /> {/* <--- Adiciona a tua Hero Section aqui */}
 
