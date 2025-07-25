@@ -5,10 +5,10 @@ import EmailIcon from '@mui/icons-material/Email';
 
 function Contactos() {
   return (
-    <Container maxWidth="md" sx={{ mt: 10, mb: 4 }}>
+    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
 
       <Typography variant="h4" component="h1" gutterBottom align="center">
-        Contactos
+        Contactos e Localização
       </Typography>
 
       <Paper elevation={3} sx={{ p: 4, mt: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
