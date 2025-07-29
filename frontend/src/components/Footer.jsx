@@ -1,3 +1,4 @@
+// src/components/Footer.jsx
 import { Box, Typography, Link } from '@mui/material';
 
 function Footer() {
@@ -8,20 +9,28 @@ function Footer() {
       component="footer" 
       sx={{
         width: '100%',
-        mt: 8, // Margem superior para separar do conteúdo acima
-        py: 3, // Padding vertical
-        px: 2, // Padding horizontal
-        backgroundColor: 'primary.main', // Cor de fundo do Material UI
+        mt: 8,
+        py: 3,
+        backgroundColor: 'primary.main',
         color: 'white',
         textAlign: 'center',
         boxShadow: '0px -2px 4px rgba(0, 0, 0, 0.2)',
+        ml: 'auto', 
+        mr: 'auto', 
+        maxWidth: '100%', 
       }}
     >
-      <Typography variant="body2">
+      <Typography 
+        variant="body2" 
+        sx={{ 
+          px: 2, 
+          display: 'block', 
+        }}
+      >
         Copyright © {currentYear}: MaqEspinhoCork.com - {' '}
         <Link
           href="https://github.com/DarKouto"
-          color="inherit" // Mantém a cor do texto do footer
+          color="inherit"
           underline="hover"
           target="_blank"
           rel="noopener noreferrer"
