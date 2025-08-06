@@ -1,14 +1,16 @@
+// src/components/HeroSection.jsx
 import { Box, Typography, Button } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import fundoPlaceholder from '../images/fundo-placeholder.jpg';
 
 function HeroSection() {
   const backgroundImage = fundoPlaceholder;
+  
   const handleScrollDown = () => {
-    window.scrollBy({
-      top: window.innerHeight * 0.7,
-      behavior: 'smooth'
-    });
+    const targetElement = document.getElementById('content-start');
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
@@ -24,7 +26,7 @@ function HeroSection() {
         justifyContent: 'center',
         alignItems: 'center',
         color: 'white',
-        textAlign: 'center', // Este textAlign alinha o texto DENTRO dos elementos de texto
+        textAlign: 'center',
         textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
         width: '100vw',
         boxSizing: 'border-box',
@@ -35,9 +37,9 @@ function HeroSection() {
           p: 4, 
           maxWidth: '800px', 
           width: '100%',
-          display: 'flex',          // <--- Adicionado: display flex
-          flexDirection: 'column',  // <--- Adicionado: itens em coluna
-          alignItems: 'center',     // <--- Adicionado: Alinha os itens ao centro no eixo horizontal
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
         <Typography variant="h3" component="h1" gutterBottom>
