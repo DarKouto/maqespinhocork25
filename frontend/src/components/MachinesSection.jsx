@@ -1,10 +1,9 @@
-import { Box, Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button } from '@mui/material';
+import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button } from '@mui/material';
 
 function MachinesSection() {
-  // Dados de máquinas de placeholder
   const machines = [
     {
-      id: 3, // Começamos com a Maq 3, como pediste
+      id: 3,
       name: 'Máquina de Seleção Ótica de Rolhas',
       description: 'Tecnologia avançada para seleção automática de rolhas por qualidade e defeitos.',
       imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+3', // Imagem placeholder mais pequena
@@ -42,21 +41,21 @@ function MachinesSection() {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 8, mb: 8 }}> {/* Mantido maxWidth="lg" para dar mais espaço ao Grid */}
+    <Container maxWidth="lg" sx={{ mt: 6, mb: 8 }}>
       <Typography variant="h4" component="h2" gutterBottom align="center" sx={{ mb: 6 }}>
-        Nossas Máquinas em Destaque
+        Nossas Máquinas Disponíveis para Venda
       </Typography>
 
-      <Grid container spacing={4} justifyContent="center"> {/* Adicionado justifyContent para centralizar os itens */}
+      <Grid container spacing={4} justifyContent="center">
         {machines.map((machine) => (
-          <Grid item key={machine.id} xs={12} sm={6} md={4}> {/* md={4} significa 3 por linha em desktop */}
+          <Grid item key={machine.id} xs={12} sm={6} md={4}>
             <Card sx={{
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
               boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-              maxWidth: 345, // <--- NOVO: Define a largura máxima do Card
-              margin: '0 auto', // <--- NOVO: Centra o Card dentro do seu item Grid
+              maxWidth: 345,
+              margin: '0 auto',
             }}>
               <CardMedia
                 component="img"

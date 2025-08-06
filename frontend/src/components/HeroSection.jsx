@@ -20,7 +20,7 @@ function HeroSection() {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
-        minHeight: '80vh',
+        minHeight: '50vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',

@@ -1,5 +1,4 @@
-// src/App.jsx
-import { Box, Typography, Toolbar } from '@mui/material';
+import { Box, Toolbar } from '@mui/material';
 import { GlobalStyles } from '@mui/system';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AppBar from './components/AppBar';
@@ -48,16 +47,10 @@ function App() {
           <Route path="/" element={
             <>
               <HeroSection />
-              <Box id="content-start" sx={{ p: 3 }}>
-                <Typography variant="h4" gutterBottom>
-                  Bem-vindo à MEC: MaqEspinhoCork v2025!
-                </Typography>
-                <Typography variant="body1" component="p">
-                  O site está a ganhar forma. Esta é a área de conteúdo principal.
-                </Typography>
-              </Box>
               
-              <MachinesSection />
+              <Box id="content-start" sx={{ p: 3 }}>
+                <MachinesSection />
+              </Box>  
 
             </>
           } />
