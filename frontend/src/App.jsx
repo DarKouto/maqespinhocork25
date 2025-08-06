@@ -1,3 +1,5 @@
+// src/App.jsx
+import { useState } from 'react'; // <--- Importado useState
 import { Box, Toolbar } from '@mui/material';
 import { GlobalStyles } from '@mui/system';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -5,9 +7,11 @@ import AppBar from './components/AppBar';
 import HeroSection from './components/HeroSection';
 import Footer from './components/Footer';
 import Contactos from './components/Contactos';
-import MachinesSection from './components/MachinesSection'; // <--- Importa o MachinesSection
+import MachinesSection from './components/MachinesSection';
 
 function App() {
+  const [searchTerm, setSearchTerm] = useState(''); // <--- Novo estado para a pesquisa
+
   return (
     <Router>
       <GlobalStyles
@@ -39,7 +43,8 @@ function App() {
         }}
       />
 
-      <AppBar />
+      {/* Passar o setSearchTerm para o AppBar para que ele possa atualizar o estado */}
+      <AppBar setSearchTerm={setSearchTerm} /> 
       <Toolbar />
 
       <Box sx={{ flexGrow: 1 }}>
@@ -49,7 +54,8 @@ function App() {
               <HeroSection />
               
               <Box id="content-start" sx={{ p: 3 }}>
-                <MachinesSection />
+                {/* Passar o termo de pesquisa para o MachinesSection */}
+                <MachinesSection searchTerm={searchTerm} /> 
               </Box>  
 
             </>
