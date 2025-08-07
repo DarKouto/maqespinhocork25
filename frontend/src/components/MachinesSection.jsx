@@ -86,7 +86,7 @@ function MachinesSection({ searchTerm }) {
                 maxWidth: 345,
                 margin: '0 auto',
               }}>
-                {/* --- NOVO: Caixa Clicável para a Imagem e Título --- */}
+
                 <Box
                   onClick={() => handleOpenDialog(machine)}
                   sx={{ cursor: 'pointer', '&:hover': { opacity: 0.8 } }}

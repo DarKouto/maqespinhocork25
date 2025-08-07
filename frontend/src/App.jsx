@@ -1,14 +1,9 @@
-// src/App.jsx
 import { useState } from 'react';
 import { Box, Toolbar } from '@mui/material';
 import { GlobalStyles } from '@mui/system';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-// --- NOVAS IMPORTAÇÕES ---
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
-// --- FIM NOVAS IMPORTAÇÕES ---
-
 import AppBar from './components/AppBar';
 import HeroSection from './components/HeroSection';
 import Footer from './components/Footer';
@@ -19,7 +14,6 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    // Envolver toda a aplicação com o ThemeProvider
     <ThemeProvider theme={theme}> 
       <Router>
         <GlobalStyles
@@ -40,7 +34,7 @@ function App() {
               overflowX: 'hidden',
               boxSizing: 'border-box',
               maxWidth: '100vw',
-              backgroundColor: '#f5f5f5', // Usamos a cor do tema para o body
+              backgroundColor: '#f5f5f5',
             },
             '#root': {
               margin: 0,

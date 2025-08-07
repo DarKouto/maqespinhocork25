@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -80,7 +80,7 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
               width: '100%', 
               height: 'auto', 
               borderRadius: 1,
-              maxHeight: '50vh', // Aumenta a altura máxima para um melhor balanço
+              maxHeight: '50vh',
               objectFit: 'contain'
             }}
           />

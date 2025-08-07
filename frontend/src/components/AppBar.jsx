@@ -129,7 +129,7 @@ function AppBar({ setSearchTerm }) {
 
   return (
     <MuiAppBar position="fixed">
-      <Container sx={{ px: { xs: 2, md: 4 } }}> {/* NOVO: Aumentado o padding horizontal */}
+      <Container sx={{ px: { xs: 2, md: 4 } }}>
         <Toolbar disableGutters>
           <IconButton
             size="large"
@@ -143,10 +143,10 @@ function AppBar({ setSearchTerm }) {
           </IconButton>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
             <Typography
-              variant="h5" // NOVO: Aumentei o tamanho do texto
+              variant="h5"
               noWrap
               component="div"
-              sx={{ display: { xs: 'none', sm: 'block' }, mr: 4, fontWeight: 'bold' }} // NOVO: Aumentei a margem e o peso da fonte
+              sx={{ display: { xs: 'none', sm: 'block' }, mr: 4, fontWeight: 'bold' }}
             >
               <MuiLink component={RouterLink} to="/" color="inherit" underline="none">
                 M.E.C.

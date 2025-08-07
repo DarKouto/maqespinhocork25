@@ -1,19 +1,16 @@
-// src/components/Contactos.jsx
-import React, { useState } from 'react'; // Importado useState
+import { useState } from 'react';
 import { Box, Typography, Container, Paper, TextField, Button } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 
 function Contactos() {
-  // NOVO: Estado para guardar os valores do formulário
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: '',
   });
 
-  // NOVO: Função para atualizar o estado sempre que o utilizador digita
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
@@ -22,9 +19,8 @@ function Contactos() {
     }));
   };
 
-  // NOVO: Função para lidar com o envio do formulário
   const handleSubmit = (e) => {
-    e.preventDefault(); // Previne o recarregamento da página
+    e.preventDefault();
     console.log('Dados do formulário a enviar:', formData);
     alert('Formulário enviado! (Verifica a consola para os dados)');
     // No futuro, aqui é onde a API será chamada para enviar os dados para o backend
@@ -94,16 +90,16 @@ function Contactos() {
           noValidate
           autoComplete="off"
           sx={{ display: 'flex', flexDirection: 'column' }} 
-          onSubmit={handleSubmit} // NOVO: Adicionado o handler para submeter
+          onSubmit={handleSubmit}
         >
           <TextField
             label="Nome"
             variant="outlined"
             fullWidth
             sx={{ mb: 2 }} 
-            id="name" // Alterado para 'name'
-            value={formData.name} // NOVO: Controlado pelo estado
-            onChange={handleChange} // NOVO: Adicionado o handler de mudança
+            id="name"
+            value={formData.name} 
+            onChange={handleChange} 
           />
           <TextField
             label="Email"
@@ -111,9 +107,9 @@ function Contactos() {
             fullWidth
             sx={{ mb: 2 }} 
             type="email"
-            id="email" // Alterado para 'email'
-            value={formData.email} // NOVO: Controlado pelo estado
-            onChange={handleChange} // NOVO: Adicionado o handler de mudança
+            id="email"
+            value={formData.email} 
+            onChange={handleChange}
           />
           <TextField
             label="Mensagem"
@@ -121,9 +117,9 @@ function Contactos() {
             fullWidth
             multiline
             rows={4}
-            id="message" // Alterado para 'message'
-            value={formData.message} // NOVO: Controlado pelo estado
-            onChange={handleChange} // NOVO: Adicionado o handler de mudança
+            id="message" 
+            value={formData.message} 
+            onChange={handleChange}
             sx={{ 
               mb: 3,
               '& .MuiInputBase-input': { 
@@ -132,7 +128,7 @@ function Contactos() {
             }} 
           />
           <Button
-            type="submit" // NOVO: Tipo 'submit' para acionar o form
+            type="submit"
             variant="contained"
             color="primary"
             sx={{ mt: 1, py: 1.5 }}

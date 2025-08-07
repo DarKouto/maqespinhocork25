@@ -37,8 +37,8 @@ function Footer() {
               display: 'flex',
               alignItems: 'center',
               '&:hover': {
-                color: 'primary.main', // NOVO: Cor de hover alterada para a cor primária (o azul escuro)
-                transform: 'scale(1.05)', // NOVO: Reduzimos o crescimento
+                color: 'primary.main', 
+                transform: 'scale(1.05)',
                 transition: 'transform 0.3s ease-in-out, color 0.3s ease-in-out',
               },
             }}

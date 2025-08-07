@@ -1,4 +1,3 @@
-// src/components/HeroSection.jsx
 import { Box, Typography, Button } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import fundoPlaceholder from '../images/fundo-placeholder.jpg';
@@ -52,12 +51,13 @@ function HeroSection() {
           size="large"
           onClick={handleScrollDown}
           sx={{
-            mt: 4,
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            mt: 2,
+            backgroundColor: 'rgba(26, 35, 126, 0.6)',
             color: 'white',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.3)',
+              backgroundColor: 'rgba(26, 35, 126, 0.8)', 
             },
+
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
