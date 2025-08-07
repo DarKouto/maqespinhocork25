@@ -1,7 +1,6 @@
-// src/components/MachinesSection.jsx
-import { useState } from 'react'; // Importado useState
-import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button } from '@mui/material';
-import MachineDetailsDialog from './MachineDetailsDialog'; // Importado o novo componente
+import { useState } from 'react';
+import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button, Box } from '@mui/material';
+import MachineDetailsDialog from './MachineDetailsDialog';
 
 // Função auxiliar para remover acentos
 const removeAccents = (str) => {
@@ -48,7 +47,6 @@ function MachinesSection({ searchTerm }) {
     },
   ];
   
-  // NOVO: Estado para a máquina selecionada e para o pop-up
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState(null);
 
@@ -88,30 +86,38 @@ function MachinesSection({ searchTerm }) {
                 maxWidth: 345,
                 margin: '0 auto',
               }}>
-                <CardMedia
-                  component="img"
-                  sx={{ 
-                    objectFit: 'cover',
-                    aspectRatio: '1/1',
-                    width: '100%',
-                  }}
-                  image={machine.imageUrl}
-                  alt={machine.name}
-                />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography gutterBottom variant="h5" component="div">
-                    {machine.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {machine.description}
-                  </Typography>
-                </CardContent>
+                {/* --- NOVO: Caixa Clicável para a Imagem e Título --- */}
+                <Box
+                  onClick={() => handleOpenDialog(machine)}
+                  sx={{ cursor: 'pointer', '&:hover': { opacity: 0.8 } }}
+                >
+                  <CardMedia
+                    component="img"
+                    sx={{ 
+                      objectFit: 'cover',
+                      aspectRatio: '1/1',
+                      width: '100%',
+                    }}
+                    image={machine.imageUrl}
+                    alt={machine.name}
+                  />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography gutterBottom variant="h5" component="div">
+                      {machine.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {machine.description}
+                    </Typography>
+                  </CardContent>
+                </Box>
+                {/* --- FIM DA NOVA CAIXA CLICÁVEL --- */}
+                
                 <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
                   <Button 
                     size="small" 
                     variant="contained" 
                     color="primary"
-                    onClick={() => handleOpenDialog(machine)} // <--- NOVO: Handler para abrir o pop-up
+                    onClick={() => handleOpenDialog(machine)}
                   >
                     Ver Detalhes
                   </Button>
@@ -128,7 +134,6 @@ function MachinesSection({ searchTerm }) {
         )}
       </Grid>
 
-      {/* NOVO: Renderizar o componente do pop-up */}
       <MachineDetailsDialog
         machine={selectedMachine}
         open={openDialog}
