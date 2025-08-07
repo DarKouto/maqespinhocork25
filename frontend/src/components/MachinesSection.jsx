@@ -1,4 +1,7 @@
+// src/components/MachinesSection.jsx
+import { useState } from 'react'; // Importado useState
 import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button } from '@mui/material';
+import MachineDetailsDialog from './MachineDetailsDialog'; // Importado o novo componente
 
 // Função auxiliar para remover acentos
 const removeAccents = (str) => {
@@ -44,8 +47,21 @@ function MachinesSection({ searchTerm }) {
       imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+8',
     },
   ];
+  
+  // NOVO: Estado para a máquina selecionada e para o pop-up
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedMachine, setSelectedMachine] = useState(null);
 
-  // Filtra as máquinas com base no termo de pesquisa, ignorando acentos
+  const handleOpenDialog = (machine) => {
+    setSelectedMachine(machine);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedMachine(null);
+  };
+
   const filteredMachines = machines.filter(machine => {
     const searchTermNormalized = removeAccents(searchTerm.toLowerCase());
     const nameNormalized = removeAccents(machine.name.toLowerCase());
@@ -91,7 +107,12 @@ function MachinesSection({ searchTerm }) {
                   </Typography>
                 </CardContent>
                 <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
-                  <Button size="small" variant="contained" color="primary">
+                  <Button 
+                    size="small" 
+                    variant="contained" 
+                    color="primary"
+                    onClick={() => handleOpenDialog(machine)} // <--- NOVO: Handler para abrir o pop-up
+                  >
                     Ver Detalhes
                   </Button>
                 </CardActions>
@@ -106,6 +127,13 @@ function MachinesSection({ searchTerm }) {
           </Grid>
         )}
       </Grid>
+
+      {/* NOVO: Renderizar o componente do pop-up */}
+      <MachineDetailsDialog
+        machine={selectedMachine}
+        open={openDialog}
+        handleClose={handleCloseDialog}
+      />
     </Container>
   );
 }
