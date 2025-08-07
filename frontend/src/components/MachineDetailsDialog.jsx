@@ -40,7 +40,7 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
   }, [open]);
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth> {/* Alterado novamente para "md" */}
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle>
         <Typography variant="h5" component="div" align="center">
           {machine.name}
@@ -80,7 +80,8 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
               width: '100%', 
               height: 'auto', 
               borderRadius: 1,
-              maxHeight: '50vh',
+              // NOVO: Adicionei uma altura fixa à imagem para o dialog não mudar de tamanho
+              height: '50vh', // A altura da imagem será sempre 50% da altura do ecrã
               objectFit: 'contain'
             }}
           />
