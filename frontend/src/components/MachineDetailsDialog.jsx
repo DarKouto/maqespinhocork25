@@ -80,8 +80,9 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
               width: '100%', 
               height: 'auto', 
               borderRadius: 1,
-              height: '50vh',
-              objectFit: 'contain'
+              objectFit: 'contain',
+              // CORREÇÃO: Altura responsiva para telemóveis
+              height: { xs: '30vh', sm: '40vh', md: '50vh' },
             }}
           />
 
