@@ -1,71 +1,40 @@
 import { useState } from 'react';
-import { Box, Toolbar } from '@mui/material';
-import { GlobalStyles } from '@mui/system';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
+import { CssBaseline, Box } from '@mui/material';
 import AppBar from './components/AppBar';
 import HeroSection from './components/HeroSection';
+import MachinesSection from './components/MachinesSection';
 import Footer from './components/Footer';
 import Contactos from './components/Contactos';
-import MachinesSection from './components/MachinesSection';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
-
   return (
-    <ThemeProvider theme={theme}> 
-      <Router>
-        <GlobalStyles
-          styles={{
-            html: {
-              margin: 0,
-              padding: 0,
-              width: '100%',
-              height: '100%',
-              overflowX: 'hidden',
-              boxSizing: 'border-box',
-            },
-            body: {
-              margin: 0,
-              padding: 0,
-              width: '100%',
-              height: '100%',
-              overflowX: 'hidden',
-              boxSizing: 'border-box',
-              maxWidth: '100vw',
-              backgroundColor: '#f5f5f5',
-            },
-            '#root': {
-              margin: 0,
-              padding: 0,
-              width: '100%',
-              height: '100%',
-              boxSizing: 'border-box',
-            },
-          }}
-        />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
-        <AppBar setSearchTerm={setSearchTerm} />
-        <Toolbar />
+          <AppBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <Box component="main" sx={{ flexGrow: 1, mt: 8 }}>
+            <Routes>
+              <Route path="/" element={
+                <>
+                  <HeroSection />
 
-        <Box sx={{ flexGrow: 1 }}>
-          <Routes>
-            <Route path="/" element={
-              <>
-                <HeroSection />
-                
-                <Box id="content-start" sx={{ p: 3 }}>
-                  <MachinesSection searchTerm={searchTerm} />
-                </Box>  
-              </>
-            } />
-            <Route path="/contactos" element={<Contactos />} />
-          </Routes>
+                  <div id="content-start">
+                    <MachinesSection searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+                  </div>
+                </>
+              } />
+              <Route path="/contactos" element={<Contactos />} />
+            </Routes>
+          </Box>
+          <Footer />
         </Box>
-
-        <Footer />
-      </Router>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }

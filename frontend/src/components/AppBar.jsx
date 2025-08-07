@@ -65,7 +65,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-function AppBar({ setSearchTerm }) {
+function AppBar({ searchTerm, setSearchTerm }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
 
@@ -129,7 +129,8 @@ function AppBar({ setSearchTerm }) {
 
   return (
     <MuiAppBar position="fixed">
-      <Container sx={{ px: { xs: 2, md: 4 } }}>
+      {/* NOVO: Propriedade 'px' para forçar alinhamento consistente, com valor maior */}
+      <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 6, md: 8 } }}>
         <Toolbar disableGutters>
           <IconButton
             size="large"
@@ -184,6 +185,7 @@ function AppBar({ setSearchTerm }) {
               <StyledInputBase
                 placeholder="Pesquisar..."
                 inputProps={{ 'aria-label': 'search' }}
+                value={searchTerm}
                 onChange={handleSearchChange}
               />
             </Search>
