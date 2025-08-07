@@ -80,8 +80,7 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
               width: '100%', 
               height: 'auto', 
               borderRadius: 1,
-              // NOVO: Adicionei uma altura fixa à imagem para o dialog não mudar de tamanho
-              height: '50vh', // A altura da imagem será sempre 50% da altura do ecrã
+              height: '50vh',
               objectFit: 'contain'
             }}
           />
@@ -104,7 +103,7 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
           </IconButton>
         </Box>
         
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
           <Typography variant="body1">
             {machine.description}
           </Typography>
