@@ -1,24 +1,54 @@
+// src/components/Contactos.jsx
+import React, { useState } from 'react'; // Importado useState
 import { Box, Typography, Container, Paper, TextField, Button } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 
 function Contactos() {
+  // NOVO: Estado para guardar os valores do formulário
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: '',
+  });
+
+  // NOVO: Função para atualizar o estado sempre que o utilizador digita
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  };
+
+  // NOVO: Função para lidar com o envio do formulário
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Previne o recarregamento da página
+    console.log('Dados do formulário a enviar:', formData);
+    alert('Formulário enviado! (Verifica a consola para os dados)');
+    // No futuro, aqui é onde a API será chamada para enviar os dados para o backend
+    // Exemplo:
+    // fetch('/api/contact', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(formData),
+    // });
+  };
+
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-
       <Typography variant="h4" component="h1" gutterBottom align="center">
         Contactos e Localização
       </Typography>
 
       <Paper elevation={3} sx={{ p: 4, mt: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
-        
-        {/* Lado Esquerdo: Informações de Contacto */}
         <Box sx={{ flex: 1 }}>
           <Typography variant="h6" gutterBottom mb={4}>
             Informações de Contacto
           </Typography>
-
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <LocationOnIcon sx={{ mr: 1 }} />
             <Typography variant="body1">
@@ -26,20 +56,16 @@ function Contactos() {
               4520-614 São João de Ver
             </Typography>
           </Box>
-
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <PhoneIcon sx={{ mr: 1 }} />
             <Typography variant="body1">962 335 430</Typography>
           </Box>
-
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <EmailIcon sx={{ mr: 1 }} />
             <Typography variant="body1">jorgejimramos@gmail.com</Typography>
           </Box>
-          
         </Box>
 
-        {/* Lado Direito: Mapa */}
         <Box sx={{ flex: 1, minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3013.568064435228!2d-8.555371516123818!3d40.94713279751086!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd23813bb6d038fb%3A0xdd821c6ce57e03d9!2sMaqespinhocork%20Lda!5e0!3m2!1spt-PT!2spt!4v1753367785535!5m2!1spt-PT!2spt"
@@ -54,7 +80,6 @@ function Contactos() {
         </Box>
       </Paper>
 
-      {/* Novo Bloco: Formulário de Contacto */}
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
         <Typography 
           variant="h5" 
@@ -69,13 +94,16 @@ function Contactos() {
           noValidate
           autoComplete="off"
           sx={{ display: 'flex', flexDirection: 'column' }} 
+          onSubmit={handleSubmit} // NOVO: Adicionado o handler para submeter
         >
           <TextField
             label="Nome"
             variant="outlined"
             fullWidth
             sx={{ mb: 2 }} 
-            id="contact-name"
+            id="name" // Alterado para 'name'
+            value={formData.name} // NOVO: Controlado pelo estado
+            onChange={handleChange} // NOVO: Adicionado o handler de mudança
           />
           <TextField
             label="Email"
@@ -83,7 +111,9 @@ function Contactos() {
             fullWidth
             sx={{ mb: 2 }} 
             type="email"
-            id="contact-email"
+            id="email" // Alterado para 'email'
+            value={formData.email} // NOVO: Controlado pelo estado
+            onChange={handleChange} // NOVO: Adicionado o handler de mudança
           />
           <TextField
             label="Mensagem"
@@ -91,16 +121,18 @@ function Contactos() {
             fullWidth
             multiline
             rows={4}
-            id="contact-message"
+            id="message" // Alterado para 'message'
+            value={formData.message} // NOVO: Controlado pelo estado
+            onChange={handleChange} // NOVO: Adicionado o handler de mudança
             sx={{ 
               mb: 3,
-              // Adiciona a propriedade resize ao input interno do TextField
               '& .MuiInputBase-input': { 
-                resize: 'vertical', // Permite redimensionar apenas verticalmente
+                resize: 'vertical',
               },
             }} 
           />
           <Button
+            type="submit" // NOVO: Tipo 'submit' para acionar o form
             variant="contained"
             color="primary"
             sx={{ mt: 1, py: 1.5 }}

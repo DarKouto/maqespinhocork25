@@ -1,8 +1,14 @@
 // src/App.jsx
-import { useState } from 'react'; // <--- Importado useState
+import { useState } from 'react';
 import { Box, Toolbar } from '@mui/material';
 import { GlobalStyles } from '@mui/system';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// --- NOVAS IMPORTAÇÕES ---
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme';
+// --- FIM NOVAS IMPORTAÇÕES ---
+
 import AppBar from './components/AppBar';
 import HeroSection from './components/HeroSection';
 import Footer from './components/Footer';
@@ -10,62 +16,63 @@ import Contactos from './components/Contactos';
 import MachinesSection from './components/MachinesSection';
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState(''); // <--- Novo estado para a pesquisa
+  const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <Router>
-      <GlobalStyles
-        styles={{
-          html: {
-            margin: 0,
-            padding: 0,
-            width: '100%',
-            height: '100%',
-            overflowX: 'hidden',
-            boxSizing: 'border-box',
-          },
-          body: {
-            margin: 0,
-            padding: 0,
-            width: '100%',
-            height: '100%',
-            overflowX: 'hidden',
-            boxSizing: 'border-box',
-            maxWidth: '100vw',
-          },
-          '#root': {
-            margin: 0,
-            padding: 0,
-            width: '100%',
-            height: '100%',
-            boxSizing: 'border-box',
-          },
-        }}
-      />
+    // Envolver toda a aplicação com o ThemeProvider
+    <ThemeProvider theme={theme}> 
+      <Router>
+        <GlobalStyles
+          styles={{
+            html: {
+              margin: 0,
+              padding: 0,
+              width: '100%',
+              height: '100%',
+              overflowX: 'hidden',
+              boxSizing: 'border-box',
+            },
+            body: {
+              margin: 0,
+              padding: 0,
+              width: '100%',
+              height: '100%',
+              overflowX: 'hidden',
+              boxSizing: 'border-box',
+              maxWidth: '100vw',
+              backgroundColor: '#f5f5f5', // Usamos a cor do tema para o body
+            },
+            '#root': {
+              margin: 0,
+              padding: 0,
+              width: '100%',
+              height: '100%',
+              boxSizing: 'border-box',
+            },
+          }}
+        />
 
-      {/* Passar o setSearchTerm para o AppBar para que ele possa atualizar o estado */}
-      <AppBar setSearchTerm={setSearchTerm} /> 
-      <Toolbar />
+        <AppBar setSearchTerm={setSearchTerm} />
+        <Toolbar />
 
-      <Box sx={{ flexGrow: 1 }}>
-        <Routes>
-          <Route path="/" element={
-            <>
-              <HeroSection />
-              
-              <Box id="content-start" sx={{ p: 3 }}>
-                {/* Passar o termo de pesquisa para o MachinesSection */}
-                <MachinesSection searchTerm={searchTerm} /> 
-              </Box>  
+        <Box sx={{ flexGrow: 1 }}>
+          <Routes>
+            <Route path="/" element={
+              <>
+                <HeroSection />
+                
+                <Box id="content-start" sx={{ p: 3 }}>
+                  <MachinesSection searchTerm={searchTerm} />
+                </Box>  
+              </>
+            } />
+            <Route path="/contactos" element={<Contactos />} />
+          </Routes>
+        </Box>
 
-            </>
-          } />
-          <Route path="/contactos" element={<Contactos />} />
-        </Routes>
-      </Box>
-
-      <Footer />
-    </Router>
+        <Footer />
+      </Router>
+    </ThemeProvider>
   );
 }
 

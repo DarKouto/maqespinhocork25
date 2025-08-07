@@ -19,14 +19,16 @@ import {
   DialogActions,
   TextField,
   Button,
+  Container,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import SettingsIcon from '@mui/icons-material/Settings';
+import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
-// --- Componentes Estilizados para a Barra de Pesquisa ---
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -63,9 +65,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-// --- Componente da AppBar ---
-// Recebe setSearchTerm como prop
-function AppBar({ setSearchTerm }) { 
+function AppBar({ setSearchTerm }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
 
@@ -88,12 +88,9 @@ function AppBar({ setSearchTerm }) {
     handleCloseLoginDialog();
   };
 
-  // NOVO: Adicionada a função para lidar com a pesquisa
   const handleSearchChange = (event) => {
     const term = event.target.value;
     setSearchTerm(term);
-    
-    // Auto-scroll quando o utilizador começa a escrever
     if (term.length > 0) {
       const targetElement = document.getElementById('content-start');
       if (targetElement) {
@@ -103,8 +100,8 @@ function AppBar({ setSearchTerm }) {
   };
 
   const navItems = [
-    { name: 'Máquinas', path: '/' },
-    { name: 'Contactos', path: '/contactos' },
+    { name: 'Máquinas', path: '/', icon: <SettingsIcon /> },
+    { name: 'Contactos', path: '/contactos', icon: <PermContactCalendarIcon /> },
   ];
 
   const drawer = (
@@ -119,7 +116,10 @@ function AppBar({ setSearchTerm }) {
         {navItems.map((item) => (
           <ListItem key={item.name} disablePadding>
             <ListItemButton component={RouterLink} to={item.path} sx={{ textAlign: 'center' }}>
-              <ListItemText primary={item.name} />
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                {item.icon}
+                <ListItemText primary={item.name} sx={{ ml: 1 }} />
+              </Box>
             </ListItemButton>
           </ListItem>
         ))}
@@ -129,70 +129,79 @@ function AppBar({ setSearchTerm }) {
 
   return (
     <MuiAppBar position="fixed">
-      <Toolbar>
-        <IconButton
-          size="large"
-          edge="start"
-          color="inherit"
-          aria-label="open drawer"
-          sx={{ mr: 2, display: { xs: 'block', sm: 'none' } }}
-          onClick={handleDrawerToggle}
-        >
-          <MenuIcon />
-        </IconButton>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}
-          >
-            <MuiLink component={RouterLink} to="/" color="inherit" underline="none">
-              MEC
-            </MuiLink>
-          </Typography>
-
-          <Box sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}>
-            {navItems.map((item) => (
-              <MuiLink
-                key={item.name}
-                component={RouterLink}
-                to={item.path}
-                color="inherit"
-                underline="none"
-                sx={{ mx: 1 }}
-              >
-                <Typography variant="button">{item.name}</Typography>
-              </MuiLink>
-            ))}
-          </Box>
-
-          <Search sx={{ mr: 2 }}>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Pesquisar..."
-              inputProps={{ 'aria-label': 'search' }}
-              onChange={handleSearchChange} // <--- Adicionado o handler de mudança
-            />
-          </Search>
-        </Box>
-
-        <Box sx={{ ml: { xs: 'auto', sm: 0 } }}>
+      <Container>
+        <Toolbar disableGutters>
           <IconButton
             size="large"
-            edge="end"
+            edge="start"
             color="inherit"
-            aria-label="admin area"
-            onClick={handleClickOpenLoginDialog}
+            aria-label="open drawer"
+            sx={{ mr: 2, display: { xs: 'block', sm: 'none' } }}
+            onClick={handleDrawerToggle}
           >
-            <AccountCircle />
+            <MenuIcon />
           </IconButton>
-        </Box>
-      </Toolbar>
-
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}
+            >
+              <MuiLink component={RouterLink} to="/" color="inherit" underline="none">
+                MEC
+              </MuiLink>
+            </Typography>
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, mr: 2, gap: 2 }}> {/* NOVO: display flex e gap */}
+              {navItems.map((item) => (
+                <MuiLink
+                  key={item.name}
+                  component={RouterLink}
+                  to={item.path}
+                  color="inherit"
+                  underline="none"
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    // NOVO: Efeito de hover com cor visível
+                    '&:hover': {
+                      color: 'yellow', // Cor amarela para um bom contraste
+                      transform: 'scale(1.1)',
+                      transition: 'transform 0.3s ease-in-out, color 0.3s ease-in-out',
+                    },
+                  }}
+                >
+                  {item.icon}
+                  <Typography variant="body1" sx={{ ml: 1, fontWeight: 'bold' }}>
+                    {item.name}
+                  </Typography>
+                </MuiLink>
+              ))}
+            </Box>
+            <Search sx={{ mr: 2 }}>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Pesquisar..."
+                inputProps={{ 'aria-label': 'search' }}
+                onChange={handleSearchChange}
+              />
+            </Search>
+          </Box>
+          <Box sx={{ ml: { xs: 'auto', sm: 0 } }}>
+            <IconButton
+              size="large"
+              edge="end"
+              color="inherit"
+              aria-label="admin area"
+              onClick={handleClickOpenLoginDialog}
+            >
+              <AccountCircle />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </Container>
       <nav>
         <Drawer
           variant="temporary"
@@ -209,7 +218,6 @@ function AppBar({ setSearchTerm }) {
           {drawer}
         </Drawer>
       </nav>
-
       <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog}>
         <DialogTitle>Login de Administrador</DialogTitle>
         <DialogContent>
