@@ -108,7 +108,7 @@ function AppBar({ setSearchTerm }) {
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
         <MuiLink component={RouterLink} to="/" color="inherit" underline="none">
-          MEC
+          M.E.C.
         </MuiLink>
       </Typography>
       <hr style={{ margin: '8px 0', border: 'none', borderBottom: '1px solid #ddd' }} />
@@ -129,7 +129,7 @@ function AppBar({ setSearchTerm }) {
 
   return (
     <MuiAppBar position="fixed">
-      <Container>
+      <Container sx={{ px: { xs: 2, md: 4 } }}> {/* NOVO: Aumentado o padding horizontal */}
         <Toolbar disableGutters>
           <IconButton
             size="large"
@@ -143,16 +143,16 @@ function AppBar({ setSearchTerm }) {
           </IconButton>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
             <Typography
-              variant="h6"
+              variant="h5" // NOVO: Aumentei o tamanho do texto
               noWrap
               component="div"
-              sx={{ display: { xs: 'none', sm: 'block' }, mr: 2 }}
+              sx={{ display: { xs: 'none', sm: 'block' }, mr: 4, fontWeight: 'bold' }} // NOVO: Aumentei a margem e o peso da fonte
             >
               <MuiLink component={RouterLink} to="/" color="inherit" underline="none">
-                MEC
+                M.E.C.
               </MuiLink>
             </Typography>
-            <Box sx={{ display: { xs: 'none', sm: 'flex' }, mr: 2, gap: 2 }}> {/* NOVO: display flex e gap */}
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, mr: 2, gap: 2 }}>
               {navItems.map((item) => (
                 <MuiLink
                   key={item.name}
@@ -163,9 +163,8 @@ function AppBar({ setSearchTerm }) {
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    // NOVO: Efeito de hover com cor visível
                     '&:hover': {
-                      color: 'yellow', // Cor amarela para um bom contraste
+                      color: 'yellow',
                       transform: 'scale(1.1)',
                       transition: 'transform 0.3s ease-in-out, color 0.3s ease-in-out',
                     },
