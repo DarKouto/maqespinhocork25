@@ -20,6 +20,7 @@ import {
   TextField,
   Button,
   Container,
+  useMediaQuery,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
@@ -28,6 +29,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -68,6 +70,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 function AppBar({ searchTerm, setSearchTerm }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -91,7 +96,9 @@ function AppBar({ searchTerm, setSearchTerm }) {
   const handleSearchChange = (event) => {
     const term = event.target.value;
     setSearchTerm(term);
-    if (term.length > 0) {
+    
+    // CORREÇÃO: Apenas faz scroll se não for mobile
+    if (term.length > 0 && !isMobile) {
       const targetElement = document.getElementById('content-start');
       if (targetElement) {
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -129,7 +136,6 @@ function AppBar({ searchTerm, setSearchTerm }) {
 
   return (
     <MuiAppBar position="fixed">
-      {/* NOVO: Propriedade 'px' para forçar alinhamento consistente, com valor maior */}
       <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 6, md: 8 } }}>
         <Toolbar disableGutters>
           <IconButton
