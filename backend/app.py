@@ -1,14 +1,10 @@
-############### IMPORTAÇÕES #####################
-from flask import Flask, jsonify, request
-from flask_mail import Mail, Message
-from dotenv import load_dotenv
-import os
-################################################
-
+from flask import Flask, jsonify, request # jsonify e request são ferramentas do Flask
+from flask_mail import Mail, Message # Mail e Message são ferramentas do flask_mail
+from dotenv import load_dotenv # biblioteca que instalei do python para ler ficheiros .env
+import os # necessário para ler ficheiros .env do OS
 
 load_dotenv() # Carrega as variáveis de ambiente do ficheiro .env
 app = Flask(__name__) # Cria uma instância da classe flask (modelo) na variável app
-
 
 # --- Configuração do Flask-Mail ---
 # As credenciais são lidas das variáveis de ambiente
@@ -18,34 +14,20 @@ app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 mail = Mail(app)
-################################################
-
 
 # Sempre que a rota '/' for pedida ao servidor, a função home é executada
 @app.route('/')
 def home():
     return jsonify({"message": "Olá, o teu servidor backend está a funcionar!"})
-################################################
 
-
-# Sempre que a rota '/contactos' for pedida ao servidor, a função contactos é executada
-@app.route('/contactos')
-def contactos():
-    return "Estás na página contactos"
-################################################
-
-
-# Sempre que a rota '/contactos' com o método POST for pedida ao servidor, a função contactos é executada
+# Sempre que a rota '/contactos' com o método GET ou POST for pedida ao servidor, a função handle_contact_form é executada
 @app.route('/contactos', methods=['GET', 'POST'])
 def handle_contact_form():
-    # Verifica qual o tipo de pedido
     if request.method == 'POST':
-        # Se for um POST, processa o formulário
         if not request.is_json:
             return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
         
         data = request.get_json()
-        
         name = data.get('name')
         email = data.get('email')
         message_text = data.get('message')
@@ -60,9 +42,7 @@ def handle_contact_form():
                 recipients=[app.config['MAIL_USERNAME']],
                 body=f"De: {name}\nEmail: {email}\n\nMensagem:\n{message_text}"
             )
-            
             mail.send(msg)
-            
             return jsonify({"message": "Mensagem enviada com sucesso!"}), 200
             
         except Exception as e:
@@ -72,9 +52,7 @@ def handle_contact_form():
     # Se o pedido não for POST (por exemplo, um GET), devolve uma mensagem simples
     return "Estás na página contactos"
 
-################################################
-
-
 # Corre a aplicação
 if __name__ == '__main__':
-    app.run(debug=True) # o debug=True serve para o servidor reiniciar automaticamente quando mudo o código
+    app.run(debug=True)
+    # o debug=True serve para o servidor reiniciar automaticamente quando mudo o código
