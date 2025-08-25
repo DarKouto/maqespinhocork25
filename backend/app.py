@@ -40,6 +40,6 @@ def handle_contact_form():
     # 5. Envia uma resposta de sucesso para o frontend
     return jsonify({"message": "Dados recebidos com sucesso!"}), 200
 
-# Corre a aplicação
+# Corre a aplicação teste
 if __name__ == '__main__':
     app.run(debug=True) # o debug=True serve para o servidor reiniciar automaticamente quando mudo o código
