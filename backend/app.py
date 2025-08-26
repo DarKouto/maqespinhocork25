@@ -4,16 +4,13 @@ from dotenv import load_dotenv # biblioteca que instalei do python para ler fich
 import os # necessário para ler ficheiros .env do OS
 
 load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
-app = Flask(__name__) # Cria uma instância da classe flask (modelo) na variável app
-
-# Guarda as variáveis do .env em variáveis python
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app = Flask(__name__) # Cria uma instância da classe flask na variável app
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME') # Guarda as variáveis do .env em variáveis python
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
-
-mail = Mail(app)
+mail = Mail(app) # Cria uma instância da classe Mail (do Flask-Mail) e inicializa-a com as configs da variável app
 
 # Sempre que a rota '/' for pedida ao servidor, a função home é executada
 @app.route('/')
@@ -27,20 +24,20 @@ def contactos():
         if request.is_json == False:
             return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
         
-        data = request.get_json()
-        name = data.get('name')
-        email = data.get('email')
-        message_text = data.get('message')
+        dados_email = request.get_json()
+        nome = dados_email.get('nome')
+        email = dados_email.get('email')
+        mensagem = dados_email.get('mensagem')
         
-        if not name or not email or not message_text:
-            return jsonify({"error": "Campos 'name', 'email' e 'message' são obrigatórios"}), 400
+        if not nome or not email or not mensagem:
+            return jsonify({"error": "Campos 'nome', 'email' e 'mensagem' são obrigatórios"}), 400
         
         try:
             msg = Message(
-                subject=f"Novo contacto de {name} ({email})",
+                subject=f"Novo contacto de {nome} ({email})",
                 sender=app.config['MAIL_USERNAME'],
                 recipients=[app.config['MAIL_USERNAME']],
-                body=f"De: {name}\nEmail: {email}\n\nMensagem:\n{message_text}"
+                body=f"De: {nome}\nEmail: {email}\n\nMensagem:\n{mensagem}"
             )
             mail.send(msg)
             return jsonify({"message": "Mensagem enviada com sucesso!"}), 200
@@ -49,10 +46,9 @@ def contactos():
             print(f"Erro ao enviar email: {e}")
             return jsonify({"error": "Não foi possível enviar a mensagem. Por favor, tente de novo mais tarde."}), 500
     
-    # Se o pedido não for POST, devolve uma mensagem simples
-    return "Estás na página contactos"
+    else:
+        return "Estás na página contactos"
 
-# Corre a aplicação
 if __name__ == '__main__':
     app.run(debug=True)
-    # o debug=True serve para o servidor reiniciar automaticamente quando mudo o código
+    #corre a aplicação, o debug=True é para o servidor actualizar automaticamente quando mudo algo no código
