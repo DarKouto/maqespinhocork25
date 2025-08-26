@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
-from dotenv import load_dotenv # biblioteca que instalei do python para ler ficheiros .env
-import os # necessário para ler ficheiros .env do OS
+from dotenv import load_dotenv
+import os
 
 load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
 app = Flask(__name__) # Cria uma instância da classe flask na variável app
@@ -12,12 +12,10 @@ app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
 mail = Mail(app) # Cria uma instância da classe Mail (do Flask-Mail) e inicializa-a com as configs da variável app
 
-# Sempre que a rota '/' for pedida ao servidor, a função home é executada
-@app.route('/')
+@app.route('/') # Sempre que a rota '/' for pedida ao servidor, a função home é executada
 def home():
     return jsonify({"message": "Olá, o teu servidor backend está a funcionar!"})
 
-# Sempre que a rota '/contactos' com o método GET ou POST for pedida ao servidor, a função contactos é executada
 @app.route('/contactos', methods=['GET', 'POST'])
 def contactos():
     if request.method == 'POST':
@@ -51,4 +49,3 @@ def contactos():
 
 if __name__ == '__main__':
     app.run(debug=True)
-    #corre a aplicação, o debug=True é para o servidor actualizar automaticamente quando mudo algo no código
