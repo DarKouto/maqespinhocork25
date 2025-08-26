@@ -1,18 +1,18 @@
-from flask import Flask, jsonify, request # jsonify e request são ferramentas do Flask
-from flask_mail import Mail, Message # Mail e Message são ferramentas do flask_mail
+from flask import Flask, jsonify, request
+from flask_mail import Mail, Message
 from dotenv import load_dotenv # biblioteca que instalei do python para ler ficheiros .env
 import os # necessário para ler ficheiros .env do OS
 
-load_dotenv() # Carrega as variáveis de ambiente do ficheiro .env
+load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
 app = Flask(__name__) # Cria uma instância da classe flask (modelo) na variável app
 
-# --- Configuração do Flask-Mail ---
-# As credenciais são lidas das variáveis de ambiente
+# Guarda as variáveis do .env em variáveis python
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+
 mail = Mail(app)
 
 # Sempre que a rota '/' for pedida ao servidor, a função home é executada
@@ -24,7 +24,7 @@ def home():
 @app.route('/contactos', methods=['GET', 'POST'])
 def handle_contact_form():
     if request.method == 'POST':
-        if not request.is_json:
+        if request.is_json == False: # if not request.is_json
             return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
         
         data = request.get_json()
