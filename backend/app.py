@@ -20,11 +20,11 @@ mail = Mail(app)
 def home():
     return jsonify({"message": "Olá, o teu servidor backend está a funcionar!"})
 
-# Sempre que a rota '/contactos' com o método GET ou POST for pedida ao servidor, a função handle_contact_form é executada
+# Sempre que a rota '/contactos' com o método GET ou POST for pedida ao servidor, a função contactos é executada
 @app.route('/contactos', methods=['GET', 'POST'])
-def handle_contact_form():
+def contactos():
     if request.method == 'POST':
-        if request.is_json == False: # if not request.is_json
+        if request.is_json == False:
             return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
         
         data = request.get_json()
@@ -49,7 +49,7 @@ def handle_contact_form():
             print(f"Erro ao enviar email: {e}")
             return jsonify({"error": "Não foi possível enviar a mensagem. Por favor, tente de novo mais tarde."}), 500
     
-    # Se o pedido não for POST (por exemplo, um GET), devolve uma mensagem simples
+    # Se o pedido não for POST, devolve uma mensagem simples
     return "Estás na página contactos"
 
 # Corre a aplicação
