@@ -19,19 +19,33 @@ function Contactos() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Dados do formulário a enviar:', formData);
-    alert('Formulário enviado! (Verifica a consola para os dados)');
-    // No futuro, aqui é onde a API será chamada para enviar os dados para o backend
-    // Exemplo:
-    // fetch('/api/contact', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(formData),
-    // });
+    try {
+      const response = await fetch('http://127.0.0.1:5000/contactos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(result.message);
+        setFormData({
+          nome: '',
+          email: '',
+          mensagem: '',
+        });
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      alert("Erro de conexão. Tente novamente mais tarde.");
+      console.error('Erro:', error);
+    }
   };
 
   return (
@@ -97,8 +111,8 @@ function Contactos() {
             variant="outlined"
             fullWidth
             sx={{ mb: 2 }} 
-            id="name"
-            value={formData.name} 
+            id="nome"
+            value={formData.nome} 
             onChange={handleChange} 
           />
           <TextField
@@ -117,8 +131,8 @@ function Contactos() {
             fullWidth
             multiline
             rows={4}
-            id="message" 
-            value={formData.message} 
+            id="mensagem" 
+            value={formData.mensagem} 
             onChange={handleChange}
             sx={{ 
               mb: 3,

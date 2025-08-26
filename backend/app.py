@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
+from flask_cors import CORS
 import os
 
 load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
 app = Flask(__name__) # Cria uma instância da classe flask na variável app
+CORS(app) # Cria uma instância da classe CORS (do Flask-Cors) e inicializa-a com as configs da variável app
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME') # Guarda as variáveis do .env em variáveis python
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
