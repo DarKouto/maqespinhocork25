@@ -1,3 +1,7 @@
+###################
+####  IMPORTS  ####
+###################
+
 from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
@@ -5,9 +9,17 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 import os
 
+############################
+####  CONFIGS INICIAIS  ####
+############################
+
 load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
 app = Flask(__name__) # Cria uma instância da classe flask na variável app
 CORS(app) # Cria uma instância da classe CORS (do Flask-Cors) e inicializa-a com as configs da variável app
+
+##########################
+####  ENVIO DE EMAIL #####
+##########################
 
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME') # Guarda as variáveis do .env em variáveis python
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
@@ -16,9 +28,39 @@ app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
 mail = Mail(app) # Cria uma instância da classe Mail (do Flask-Mail) e inicializa-a com as configs da variável app
 
+#########################
+####  BASE DE DADOS  ####
+#########################
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+class Maquinas(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    descricao = db.Column(db.Text, nullable=False)
+    imagens = db.relationship('Imagens', backref='maquina', lazy=True) # Esta linha cria a ligação com a classe Imagens
+    def __repr__(self):
+        return f'<Máquina {self.nome}>'
+
+class Imagens(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    url_imagem = db.Column(db.String(255), nullable=False)
+    maquina_id = db.Column(db.Integer, db.ForeignKey('maquinas.id'), nullable=False) # Esta linha liga cada imagem à sua máquina
+    def __repr__(self):
+        return f'<Imagem {self.url_imagem}>'
+
+class Utilizador(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome_utilizador = db.Column(db.String(80), unique=True, nullable=False)
+    palavra_passe = db.Column(db.String(120), nullable=False)
+    def __repr__(self):
+        return f'<Utilizador {self.nome_utilizador}>'
+
+#################
+####  ROTAS  ####
+#################
 
 @app.route('/') # Sempre que a rota '/' for pedida ao servidor, a função home é executada
 def home():
@@ -54,6 +96,10 @@ def contactos():
     
     else:
         return "Estás na página contactos"
+
+#######################
+####  INICIAR APP  ####
+#######################
 
 if __name__ == '__main__':
     app.run(debug=True)
