@@ -16,7 +16,7 @@ import os
 
 load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
 app = Flask(__name__) # Cria uma instância da classe flask na variável app
-CORS(app) # Cria uma instância da classe CORS (do Flask-Cors) e inicializa-a com as configs da variável app
+CORS(app) # serve para ligar os 2 ambientes de desenvolvimento, front e back (os 2 localhosts)
 
 ##########################
 ####  ENVIO DE EMAIL #####
