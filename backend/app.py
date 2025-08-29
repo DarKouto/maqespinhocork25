@@ -1,7 +1,4 @@
-###################
-####  IMPORTS  ####
-###################
-
+# IMPORTS
 from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
@@ -130,5 +127,6 @@ def get_maquinas():
     # Esta função só vai correr se o pedido tiver um token válido
     return jsonify({"mensagem": "Bem-vindo à área de administração, o teu token é válido!"}), 200
 
+# INICIAR APP
 if __name__ == '__main__':
     app.run()
