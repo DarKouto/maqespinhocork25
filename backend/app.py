@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash # o generate é para uso a consola python e importo a app para criar utilizador
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -120,11 +120,11 @@ def login():
         return jsonify(access_token=access_token), 200
     else:
         return jsonify({"error": "Nome de utilizador ou palavra-passe incorretos"}), 401
-    
+
+# Sempre que rota /admin/maquinas é pedida ao servidor, e o token jwt for váldio, executa a função ver_maquinas
 @app.route('/admin/maquinas', methods=['GET'])
 @jwt_required()
-def get_maquinas():
-    # Esta função só vai correr se o pedido tiver um token válido
+def ver_maquinas():
     return jsonify({"mensagem": "Bem-vindo à área de administração, o teu token é válido!"}), 200
 
 # INICIAR APP
