@@ -1,10 +1,10 @@
 # MaqEspinhoCork 2025
 New MaqEspinhoCork web application, built from scratch, using:
- - React
+ - React.JS
  - Material UI
  - Python
  - Flask
- - MySQL
+ - MySQL / MariaDB
  - Vercel
 
 Work in progress
