@@ -6,6 +6,7 @@ from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
 from dotenv import load_dotenv
 from flask_cors import CORS
 import os
@@ -98,9 +99,45 @@ def contactos():
     else:
         return "Estás na página contactos"
 
+################################
+####  JWT (JSON Web Token)  ####
+################################
+
+app.config["JWT_SECRET_KEY"] = os.environ.get("SECRET_KEY_JWT")
+jwt = JWTManager(app)
+
+@app.route('/login', methods=['POST'])
+def login():
+    if not request.is_json:
+        return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
+
+    dados_login = request.get_json()
+    nome_utilizador = dados_login.get('nome_utilizador')
+    palavra_passe = dados_login.get('palavra_passe')
+
+    if not nome_utilizador or not palavra_passe:
+        return jsonify({"error": "Campos 'nome_utilizador' e 'palavra_passe' são obrigatórios."}), 400
+
+    # Procura o utilizador na base de dados
+    utilizador = Utilizador.query.filter_by(nome_utilizador=nome_utilizador).first()
+
+    # Se o utilizador existir e a password estiver correta (usando o hash)
+    if utilizador and check_password_hash(utilizador.palavra_passe, palavra_passe):
+        # Cria o token JWT
+        access_token = create_access_token(identity=utilizador.id)
+        return jsonify(access_token=access_token), 200
+    else:
+        return jsonify({"error": "Nome de utilizador ou palavra-passe incorretos"}), 401
+    
+@app.route('/admin/maquinas', methods=['GET'])
+@jwt_required()
+def get_maquinas():
+    # Esta função só vai correr se o pedido tiver um token válido
+    return jsonify({"mensagem": "Bem-vindo à área de administração, o teu token é válido!"}), 200
+
 #######################
 ####  INICIAR APP  ####
 #######################
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
