@@ -11,29 +11,24 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 import os
 
-############################
-####  CONFIGS INICIAIS  ####
-############################
+#########################
+####  CONFIGURAÇÕES  ####
+#########################
 
+# CONFIGS INICIAIS
 load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
 app = Flask(__name__) # Cria uma instância da classe flask na variável app
 CORS(app) # serve para ligar os 2 ambientes de desenvolvimento, front e back (os 2 localhosts)
 
-##########################
-####  ENVIO DE EMAIL #####
-##########################
-
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME') # Guarda as variáveis do .env em variáveis python
+# ENVIO DE E-MAIL
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
 mail = Mail(app) # Cria uma instância da classe Mail (do Flask-Mail) e inicializa-a com as configs da variável app
 
-#########################
-####  BASE DE DADOS  ####
-#########################
-
+# BASE DE DADOS
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -60,14 +55,20 @@ class Utilizador(db.Model):
     def __repr__(self):
         return f'<Utilizador {self.nome_utilizador}>'
 
+# JWT (JSON Web Token)
+app.config["JWT_SECRET_KEY"] = os.environ.get("SECRET_KEY_JWT")
+jwt = JWTManager(app)
+
 #################
 ####  ROTAS  ####
 #################
 
+# HOME / INDEX
 @app.route('/') # Sempre que a rota '/' for pedida ao servidor, a função home é executada
 def home():
     return jsonify({"message": "Olá, o teu servidor backend está a funcionar!"})
 
+# CONTACTOS / E-MAIL
 @app.route('/contactos', methods=['GET', 'POST'])
 def contactos():
     if request.method == 'POST':
@@ -99,16 +100,10 @@ def contactos():
     else:
         return "Estás na página contactos"
 
-################################
-####  JWT (JSON Web Token)  ####
-################################
-
-app.config["JWT_SECRET_KEY"] = os.environ.get("SECRET_KEY_JWT")
-jwt = JWTManager(app)
-
+# LOGIN
 @app.route('/login', methods=['POST'])
 def login():
-    if not request.is_json:
+    if request.is_json == False:
         return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
 
     dados_login = request.get_json()
@@ -134,10 +129,6 @@ def login():
 def get_maquinas():
     # Esta função só vai correr se o pedido tiver um token válido
     return jsonify({"mensagem": "Bem-vindo à área de administração, o teu token é válido!"}), 200
-
-#######################
-####  INICIAR APP  ####
-#######################
 
 if __name__ == '__main__':
     app.run()
