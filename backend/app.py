@@ -4,8 +4,8 @@ from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash # o generate é para uso a consola python e importo a app para criar utilizador
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
+from flask_cors import CORS # serve para ligar os 2 ambientes de desenvolvimento, front e back (os 2 localhosts)
 from dotenv import load_dotenv
-from flask_cors import CORS
 import os
 
 #########################
@@ -15,7 +15,7 @@ import os
 # CONFIGS INICIAIS
 load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
 app = Flask(__name__) # Cria uma instância da classe flask na variável app
-CORS(app) # serve para ligar os 2 ambientes de desenvolvimento, front e back (os 2 localhosts)
+CORS(app) 
 
 # ENVIO DE E-MAIL
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
@@ -30,6 +30,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# ORM
 class Maquinas(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
@@ -121,7 +122,7 @@ def login():
     else:
         return jsonify({"error": "Nome de utilizador ou palavra-passe incorretos"}), 401
 
-# Sempre que rota /admin/maquinas é pedida ao servidor, e o token jwt for váldio, executa a função ver_maquinas
+# ADMIN PAGE
 @app.route('/admin/maquinas', methods=['GET'])
 @jwt_required()
 def ver_maquinas():
