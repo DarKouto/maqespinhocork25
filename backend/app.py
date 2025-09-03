@@ -2,9 +2,9 @@
 from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import check_password_hash, generate_password_hash # o generate é para uso a consola python e importo a app para criar utilizador
-from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
-from flask_cors import CORS # serve para ligar os 2 ambientes de desenvolvimento, front e back (os 2 localhosts)
+from werkzeug.security import check_password_hash, generate_password_hash # o generate é quando uso a consola python e importo a app para criar utilizador
+from flask_jwt_extended import create_access_token, JWTManager, jwt_required
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
@@ -15,7 +15,7 @@ import os
 # CONFIGS INICIAIS
 load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
 app = Flask(__name__) # Cria uma instância da classe flask na variável app
-CORS(app) 
+CORS(app)
 
 # ENVIO DE E-MAIL
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
