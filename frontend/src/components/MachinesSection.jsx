@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button, Box } from '@mui/material';
 import MachineDetailsDialog from './MachineDetailsDialog';
 
@@ -6,32 +6,45 @@ const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 };
 
-function MachinesSection({ searchTerm, setSearchTerm }) {
-    // Estado para guardar as máquinas da API
-    const [machines, setMachines] = useState([]);
-    // Estado para o carregamento e erros
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-  
-    useEffect(() => {
-      const fetchMachines = async () => {
-        try {
-          const response = await fetch('http://localhost:5000/maquinas');
-
-          if (!response.ok) {
-            throw new Error(`Erro: ${response.status}`);
-          }
-          const data = await response.json();
-          setMachines(data);
-        } catch (error) {
-          setError(error.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-      
-      fetchMachines();
-    }, []); // O array vazio assegura que o efeito só corre uma vez
+function MachinesSection({ searchTerm, setSearchTerm }) { 
+  const machines = [
+    {
+      id: 3,
+      name: 'Máquina de Seleção Ótica de Rolhas',
+      description: 'Tecnologia avançada para seleção automática de rolhas por qualidade e defeitos.',
+      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+3',
+    },
+    {
+      id: 4,
+      name: 'Linha de Acabamento de Superfície',
+      description: 'Sistema completo para lixagem e tratamento de superfície de produtos de cortiça.',
+      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+4',
+    },
+    {
+      id: 5,
+      name: 'Transportador de Correia Reforçado',
+      description: 'Solução de transporte eficiente para movimentação de materiais pesados na fábrica.',
+      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+5',
+    },
+    {
+      id: 6,
+      name: 'Sistema de Embalagem Automatizado',
+      description: 'Embalagem rápida e segura para rolhas e outros produtos acabados de cortiça.',
+      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+6',
+    },
+    {
+      id: 7,
+      name: 'Máquina de Corte de Cortiça XPTO',
+      description: 'Equipamento de alta precisão para corte e acabamento de rolhas de cortiça.',
+      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+7',
+    },
+    {
+      id: 8,
+      name: 'Prensa Hidráulica Industrial',
+      description: 'Prensa robusta para compactação de aglomerados de cortiça, ideal para grandes volumes.',
+      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+8',
+    },
+  ];
   
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState(null);
@@ -54,9 +67,6 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
     
     return nameNormalized.includes(searchTermNormalized) || descriptionNormalized.includes(searchTermNormalized);
   });
-  
-    if (loading) return <div>A carregar máquinas...</div>;
-    if (error) return <div>Erro ao carregar máquinas: {error}</div>;
 
   return (
     <Container maxWidth="lg">
