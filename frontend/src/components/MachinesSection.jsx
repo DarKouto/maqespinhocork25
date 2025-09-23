@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button, Box } from '@mui/material';
 import MachineDetailsDialog from './MachineDetailsDialog';
+import a1 from '../images/a1.jpeg';
+import b1 from '../images/b1.jpeg';
+import c1 from '../images/c1.jpeg';
+import d1 from '../images/d1.jpeg';
+import e1 from '../images/e1.jpeg';
+
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
@@ -9,34 +15,34 @@ const removeAccents = (str) => {
 function MachinesSection({ searchTerm, setSearchTerm }) { 
   const machines = [
     {
+      id: 1,
+      name: 'Ponçadeira',
+      description: 'Máquina de Ponçar Rolhas. Adquirida a Petravintage.',
+      imageUrl: a1,
+    },
+    {
+      id: 2,
+      name: 'Lixadeira / Topejadeira',
+      description: 'Máquina de Topejar Rolhas. Adquirida à Corper',
+      imageUrl: b1,
+    },
+    {
       id: 3,
-      name: 'Máquina de Seleção Ótica de Rolhas',
-      description: 'Tecnologia avançada para seleção automática de rolhas por qualidade e defeitos.',
-      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+3',
+      name: 'Aspirador de Pó',
+      description: 'Aspirador de Pó / Dust Collector com duas saídas.',
+      imageUrl: c1,
     },
     {
       id: 4,
-      name: 'Linha de Acabamento de Superfície',
-      description: 'Sistema completo para lixagem e tratamento de superfície de produtos de cortiça.',
-      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+4',
+      name: 'Máquina de Contar Rolhas',
+      description: 'Máquina de Contar Rolhas Automática. Adquirida à Regrapróspera.',
+      imageUrl: d1,
     },
     {
       id: 5,
-      name: 'Transportador de Correia Reforçado',
-      description: 'Solução de transporte eficiente para movimentação de materiais pesados na fábrica.',
-      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+5',
-    },
-    {
-      id: 6,
-      name: 'Sistema de Embalagem Automatizado',
-      description: 'Embalagem rápida e segura para rolhas e outros produtos acabados de cortiça.',
-      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+6',
-    },
-    {
-      id: 7,
-      name: 'Máquina de Corte de Cortiça XPTO',
-      description: 'Equipamento de alta precisão para corte e acabamento de rolhas de cortiça.',
-      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+7',
+      name: 'Alimentador Automático / "Girafa',
+      description: 'Alimentador Automático / "Girafa. Produto MEC: MaqEspinhoCork',
+      imageUrl: e1,
     },
     {
       id: 8,

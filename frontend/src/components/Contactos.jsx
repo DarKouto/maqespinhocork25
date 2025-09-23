@@ -43,7 +43,7 @@ function Contactos() {
         alert(result.error);
       }
     } catch (error) {
-      alert("Erro de conexão. Tente novamente mais tarde.");
+      alert("Formulário ainda em construção. Por favor contacte manualmente: jorgejimramos@gmail.com");
       console.error('Erro:', error);
     }
   };
