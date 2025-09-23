@@ -49,7 +49,7 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
       id: 6,
       name: 'Marcadeira a Tinta',
       description: 'Marcadeira de Rolhas completa a Tinta',
-      imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+8',
+      imageUrl: f1,
     },
   ];
   
