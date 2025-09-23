@@ -17,13 +17,13 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
     {
       id: 1,
       name: 'Ponçadeira',
-      description: 'Máquina de Ponçar Rolhas. Adquirida a Petravintage.',
+      description: 'Máquina de Ponçar Rolhas.',
       imageUrl: a1,
     },
     {
       id: 2,
       name: 'Lixadeira / Topejadeira',
-      description: 'Máquina de Topejar Rolhas. Adquirida à Corper',
+      description: 'Máquina de Topejar Rolhas.',
       imageUrl: b1,
     },
     {
@@ -35,7 +35,7 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
     {
       id: 4,
       name: 'Máquina de Contar Rolhas',
-      description: 'Máquina de Contar Rolhas Automática. Adquirida à Regrapróspera.',
+      description: 'Máquina de Contar Rolhas Automática.',
       imageUrl: d1,
     },
     {
