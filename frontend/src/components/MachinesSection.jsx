@@ -6,6 +6,7 @@ import b1 from '../images/b1.jpeg';
 import c1 from '../images/c1.jpeg';
 import d1 from '../images/d1.jpeg';
 import e1 from '../images/e1.jpeg';
+import f1 from '../images/f1.jpeg';
 
 
 const removeAccents = (str) => {
@@ -45,9 +46,9 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
       imageUrl: e1,
     },
     {
-      id: 8,
-      name: 'Prensa Hidráulica Industrial',
-      description: 'Prensa robusta para compactação de aglomerados de cortiça, ideal para grandes volumes.',
+      id: 6,
+      name: 'Marcadeira a Tinta',
+      description: 'Marcadeira de Rolhas completa a Tinta',
       imageUrl: 'https://placehold.co/300x300/a3e635/000000?text=Maq+8',
     },
   ];
