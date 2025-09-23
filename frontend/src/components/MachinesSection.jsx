@@ -46,7 +46,7 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
       imageUrl: e1,
     },
     {
-      id: 6,
+      id: 9,
       name: 'Marcadeira a Tinta',
       description: 'Marcadeira de Rolhas completa a Tinta',
       imageUrl: f1,
