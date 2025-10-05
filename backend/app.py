@@ -1,12 +1,16 @@
 # IMPORTS
 from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
-from flask_sqlalchemy import SQLAlchemy
+
 from werkzeug.security import check_password_hash, generate_password_hash # o generate é quando uso a consola python e importo a app para criar utilizador
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
+
+# IMPORTS DO REFACTOR
+from models import Maquinas, Imagens, Utilizador
+from extensions import db
 
 #########################
 ####  CONFIGURAÇÕES  ####
@@ -28,30 +32,7 @@ mail = Mail(app) # Cria uma instância da classe Mail (do Flask-Mail) e iniciali
 # BASE DE DADOS
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-# ORM
-class Maquinas(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), nullable=False)
-    descricao = db.Column(db.Text, nullable=False)
-    imagens = db.relationship('Imagens', backref='maquina', lazy=True) # Esta linha cria a ligação com a classe Imagens
-    def __repr__(self):
-        return f'<Máquina {self.nome}>'
-
-class Imagens(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    url_imagem = db.Column(db.String(255), nullable=False)
-    maquina_id = db.Column(db.Integer, db.ForeignKey('maquinas.id'), nullable=False) # Esta linha liga cada imagem à sua máquina
-    def __repr__(self):
-        return f'<Imagem {self.url_imagem}>'
-
-class Utilizador(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nome_utilizador = db.Column(db.String(80), unique=True, nullable=False)
-    palavra_passe = db.Column(db.String(120), nullable=False)
-    def __repr__(self):
-        return f'<Utilizador {self.nome_utilizador}>'
+db.init_app(app) 
 
 # JWT (JSON Web Token)
 app.config["JWT_SECRET_KEY"] = os.environ.get("SECRET_KEY_JWT")
