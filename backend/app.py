@@ -1,7 +1,6 @@
 # IMPORTS
 from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
-
 from werkzeug.security import check_password_hash, generate_password_hash # o generate é quando uso a consola python e importo a app para criar utilizador
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required
 from flask_cors import CORS
@@ -11,6 +10,7 @@ import os
 # IMPORTS DO REFACTOR
 from models import Maquinas, Imagens, Utilizador
 from extensions import db
+from crud import crud_bp
 
 #########################
 ####  CONFIGURAÇÕES  ####
@@ -37,6 +37,9 @@ db.init_app(app)
 # JWT (JSON Web Token)
 app.config["JWT_SECRET_KEY"] = os.environ.get("SECRET_KEY_JWT")
 jwt = JWTManager(app)
+
+# CRUD BLUEPRINT
+app.register_blueprint(crud_bp)
 
 #################
 ####  ROTAS  ####
@@ -99,73 +102,6 @@ def login():
     else:
         return jsonify({"error": "Nome de utilizador ou palavra-passe incorretos"}), 401
     
-################
-####  CRUD  ####
-################
-
-# OBTER TODAS AS MÁQUINAS (CRUD - READ)
-@app.route('/admin/maquinas', methods=['GET'])
-@jwt_required()
-def get_all_maquinas():
-    maquinas = Maquinas.query.all()
-    lista_maquinas = []
-    for maquina in maquinas:
-        lista_maquinas.append({
-            'id': maquina.id,
-            'nome': maquina.nome,
-            'descricao': maquina.descricao
-        })
-    return jsonify(lista_maquinas)
-
-# CRIAR UMA NOVA MÁQUINA (CRUD - CREATE)
-@app.route('/admin/maquinas', methods=['POST'])
-@jwt_required()
-def create_maquina():
-    if not request.is_json:
-        return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
-
-    dados_maquina = request.get_json()
-    nome = dados_maquina.get('nome')
-    descricao = dados_maquina.get('descricao')
-
-    if not nome or not descricao:
-        return jsonify({"error": "Campos 'nome' e 'descricao' são obrigatórios"}), 400
-
-    nova_maquina = Maquinas(nome=nome, descricao=descricao)
-    db.session.add(nova_maquina)
-    db.session.commit()
-    return jsonify({"message": f"Máquina '{nome}' criada com sucesso!"}), 201
-
-# ACTUALIZAR MÁQUINA (CRUD - UPDATE)
-@app.route('/admin/maquinas/<int:maquina_id>', methods=['PUT'])
-@jwt_required()
-def update_maquina(maquina_id):
-    if not request.is_json:
-        return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
-
-    maquina = Maquinas.query.get(maquina_id)
-    if not maquina:
-        return jsonify({"error": "Máquina não encontrada"}), 404
-
-    dados_atualizados = request.get_json()
-    maquina.nome = dados_atualizados.get('nome', maquina.nome)
-    maquina.descricao = dados_atualizados.get('descricao', maquina.descricao)
-
-    db.session.commit()
-    return jsonify({"message": f"Máquina {maquina_id} atualizada com sucesso!"}), 200
-
-# APAGAR MÁQUINA (CRUD - DELETE)
-@app.route('/admin/maquinas/<int:maquina_id>', methods=['DELETE'])
-@jwt_required()
-def delete_maquina(maquina_id):
-    maquina = Maquinas.query.get(maquina_id)
-    if not maquina:
-        return jsonify({"error": "Máquina não encontrada"}), 404
-
-    db.session.delete(maquina)
-    db.session.commit()
-    return jsonify({"message": f"Máquina {maquina_id} apagada com sucesso!"}), 200
-
 # INICIAR APP
 if __name__ == '__main__':
     app.run()
