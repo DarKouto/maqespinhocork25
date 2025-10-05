@@ -4,37 +4,22 @@ from flask_mail import Mail, Message
 from werkzeug.security import check_password_hash, generate_password_hash # o generate é quando uso a consola python e importo a app para criar utilizador
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required
 from flask_cors import CORS
-from dotenv import load_dotenv
-import os
 
 # IMPORTS DO REFACTOR
 from models import Maquinas, Imagens, Utilizador
 from extensions import db
 from crud import crud_bp
+from config import Config
 
 # CONFIGS INICIAIS
-load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# ENVIO DE E-MAIL
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
-app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+# CONFIGS CONFIG.PY
+app.config.from_object(Config)
 mail = Mail(app)
-
-# BASE DE DADOS
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app) 
-
-# JWT (JSON Web Token)
-app.config["JWT_SECRET_KEY"] = os.environ.get("SECRET_KEY_JWT")
 jwt = JWTManager(app)
-
-# CRUD BLUEPRINT
 app.register_blueprint(crud_bp)
 
 #################
