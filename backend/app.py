@@ -1,4 +1,4 @@
-# IMPORTS
+# IMPORTS DO FLASK
 from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from werkzeug.security import check_password_hash, generate_password_hash # o generate é quando uso a consola python e importo a app para criar utilizador
@@ -12,13 +12,9 @@ from models import Maquinas, Imagens, Utilizador
 from extensions import db
 from crud import crud_bp
 
-#########################
-####  CONFIGURAÇÕES  ####
-#########################
-
 # CONFIGS INICIAIS
-load_dotenv() # Lê e carrega as variáveis de ambiente do ficheiro .env
-app = Flask(__name__) # Cria uma instância da classe flask na variável app
+load_dotenv()
+app = Flask(__name__)
 CORS(app)
 
 # ENVIO DE E-MAIL
@@ -27,7 +23,7 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
-mail = Mail(app) # Cria uma instância da classe Mail (do Flask-Mail) e inicializa-a com as configs da variável app
+mail = Mail(app)
 
 # BASE DE DADOS
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
