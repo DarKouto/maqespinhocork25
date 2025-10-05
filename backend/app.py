@@ -17,10 +17,10 @@ CORS(app)
 
 # CONFIGS CONFIG.PY
 app.config.from_object(Config)
-mail = Mail(app)
-db.init_app(app) 
-jwt = JWTManager(app)
+db.init_app(app)
 app.register_blueprint(crud_bp)
+mail = Mail(app)
+jwt = JWTManager(app)
 
 #################
 ####  ROTAS  ####
