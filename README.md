@@ -4,7 +4,8 @@ New MaqEspinhoCork web application, built from scratch, using:
  - Material UI
  - Python
  - Flask
- - MySQL / MariaDB
+ - PostgreSQL
+ - Neon
  - Vercel
 
 Work in progress
