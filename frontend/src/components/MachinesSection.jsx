@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button, Box } from '@mui/material';
 import MachineDetailsDialog from './MachineDetailsDialog';
 import a1 from '../images/a1.jpeg';
@@ -14,44 +14,85 @@ const removeAccents = (str) => {
 };
 
 function MachinesSection({ searchTerm, setSearchTerm }) { 
+  // ESTADOS PARA DADOS DA API E CONTROLO DE CARREGAMENTO
+  const [apiMachines, setApiMachines] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); 
+  const [error, setError] = useState(null); 
+  
+  // DADOS HARDCODE (ID's NEGATIVOS para evitar conflito com a API)
   const machines = [
     {
-      id: 1,
+      id: -1, 
       name: 'Ponçadeira',
       description: 'Máquina de Ponçar Rolhas.',
       imageUrl: a1,
     },
     {
-      id: 2,
+      id: -2, 
       name: 'Lixadeira / Topejadeira',
       description: 'Máquina de Topejar Rolhas.',
       imageUrl: b1,
     },
     {
-      id: 3,
+      id: -3, 
       name: 'Aspirador de Pó',
       description: 'Aspirador de Pó / Dust Collector com duas saídas.',
       imageUrl: c1,
     },
     {
-      id: 4,
+      id: -4, 
       name: 'Máquina de Contar Rolhas',
       description: 'Máquina de Contar Rolhas Automática.',
       imageUrl: d1,
     },
     {
-      id: 5,
+      id: -5, 
       name: 'Alimentador Automático / "Girafa',
       description: 'Alimentador Automático / "Girafa. Produto MEC: MaqEspinhoCork',
       imageUrl: e1,
     },
     {
-      id: 6,
+      id: -6, 
       name: 'Marcadeira a Tinta',
       description: 'Marcadeira de Rolhas completa a Tinta',
       imageUrl: f1,
     },
   ];
+  
+  // FETCH DE DADOS DA API
+  useEffect(() => {
+    const API_URL = 'http://127.0.0.1:5000/'; 
+
+    fetch(API_URL)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Falha ao obter dados da API.');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // CORREÇÃO CRUCIAL: Mapeamento de Python (nome/descricao) para JavaScript (name/description)
+        const machinesWithImages = data.map(m => ({
+            id: Number(m.id), // Garante que o ID é número
+            name: m.nome, // << MAPEAMENTO CORRIGIDO
+            description: m.descricao, // << MAPEAMENTO CORRIGIDO
+            imageUrl: m.imageUrl || 'https://via.placeholder.com/200?text=Stock+API', // Placeholder
+        }));
+        
+        setApiMachines(machinesWithImages);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Erro na busca da API:", err);
+        setError("Não foi possível carregar o stock da API."); 
+        setIsLoading(false);
+      });
+  }, []); 
+
+
+  // COMBINAÇÃO: Hardcode + API
+  const allMachines = [...machines, ...apiMachines]; 
+
   
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState(null);
@@ -67,13 +108,46 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
     setSearchTerm('');
   };
 
-  const filteredMachines = machines.filter(machine => {
+  // DIAGNÓSTICO: DESATIVA O FILTRO TEMPORARIAMENTE
+  const filteredMachines = allMachines.filter(machine => { 
+    // Filtro de segurança (Objeto e Nome não podem ser nulos)
+    if (!machine || !machine.name) {
+        return false;
+    }
+
+    // Definir a descrição como "" se for nula/undefined
+    const description = machine.description || "";
+    
     const searchTermNormalized = removeAccents(searchTerm.toLowerCase());
     const nameNormalized = removeAccents(machine.name.toLowerCase());
-    const descriptionNormalized = removeAccents(machine.description.toLowerCase());
+    
+    // USAR a variável 'description' corrigida
+    const descriptionNormalized = removeAccents(description.toLowerCase()); 
     
     return nameNormalized.includes(searchTermNormalized) || descriptionNormalized.includes(searchTermNormalized);
-  });
+});
+  
+  // FEEDBACK DE CARREGAMENTO E ERRO
+  if (isLoading && allMachines.length === 0) {
+      return (
+        <Container maxWidth="lg">
+          <Typography variant="h6" align="center" sx={{ mt: 6 }}>
+            A carregar stock...
+          </Typography>
+        </Container>
+      );
+    }
+  
+  if (error) {
+      return (
+        <Container maxWidth="lg">
+          <Typography variant="h6" align="center" color="error" sx={{ mt: 6 }}>
+            {error}
+          </Typography>
+        </Container>
+      );
+    }
+
 
   return (
     <Container maxWidth="lg">

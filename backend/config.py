@@ -10,6 +10,17 @@ class Config:
     # Configurações da Base de Dados (SQLAlchemy)
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # NOVO: CONFIGURAÇÃO DE ENGENHARIA PARA POSTGRESQL/NEON
+    # Estas opções ajudam a manter a conexão estável em ambientes cloud com "Scale to Zero"
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        # Esta opção força o uso de SSL/TLS, que é obrigatório no Neon
+        "connect_args": {"sslmode": "require"}, 
+        # pool_recycle: Fecha e reabre as conexões após 299 segundos (menos que os 5 minutos de inatividade do Neon)
+        "pool_recycle": 299, 
+        # pool_timeout: Tempo máximo de espera para uma conexão ser disponibilizada (10 segundos)
+        "pool_timeout": 10,  
+    }
 
     # Configurações do E-mail (Flask-Mail)
     MAIL_USERNAME = os.getenv('MAIL_USERNAME')
