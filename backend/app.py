@@ -6,19 +6,25 @@ from flask_cors import CORS
 
 # IMPORTS DO REFACTOR
 from extensions import db
-from crud import crud_bp
 from config import Config
 from auth import auth_bp
+from crud import crud_bp
+from public import public_bp
 
 # CONFIGS
 app = Flask(__name__)
 CORS(app)
 app.config.from_object(Config)
 db.init_app(app)
-app.register_blueprint(crud_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(crud_bp)
+app.register_blueprint(public_bp)
 mail = Mail(app)
 jwt = JWTManager(app)
+
+#################
+####  ROTAS  ####
+#################
 
 # HOME / INDEX
 @app.route('/')
@@ -56,7 +62,7 @@ def contactos():
     
     else:
         return "Estás na página contactos"
-    
+
 # INICIAR APP
 if __name__ == '__main__':
     app.run()
