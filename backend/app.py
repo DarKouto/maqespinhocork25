@@ -7,9 +7,9 @@ from flask_cors import CORS
 # IMPORTS DO REFACTOR
 from extensions import db
 from config import Config
+from models import Maquinas
 from auth import auth_bp
 from crud import crud_bp
-from public import public_bp
 
 # CONFIGS
 app = Flask(__name__)
@@ -18,7 +18,6 @@ app.config.from_object(Config)
 db.init_app(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(crud_bp)
-app.register_blueprint(public_bp)
 mail = Mail(app)
 jwt = JWTManager(app)
 
@@ -29,7 +28,19 @@ jwt = JWTManager(app)
 # HOME / INDEX
 @app.route('/')
 def home():
-    return jsonify({"message": "Olá, o teu servidor backend está a funcionar!"})
+    # Consulta a base de dados Neon
+    maquinas = Maquinas.query.all()
+    
+    # Serialização dos dados para JSON
+    lista_maquinas = []
+    for maquina in maquinas:
+        lista_maquinas.append({
+            'id': maquina.id,
+            'nome': maquina.nome,
+            'descricao': maquina.descricao,
+        })
+
+    return jsonify(lista_maquinas)
 
 # CONTACTOS / E-MAIL
 @app.route('/contactos', methods=['GET', 'POST'])
