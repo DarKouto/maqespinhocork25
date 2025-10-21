@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+import re
 
 # IMPORTS DO REFACTOR
 from extensions import db
@@ -20,6 +21,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(crud_bp)
 mail = Mail(app)
 jwt = JWTManager(app)
+EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 #################
 ####  ROTAS  ####
@@ -54,8 +56,17 @@ def contactos():
         email = dados_email.get('email')
         mensagem = dados_email.get('mensagem')
         
-        if not nome or not email or not mensagem:
-            return jsonify({"error": "Campos 'nome', 'email' e 'mensagem' são obrigatórios"}), 400
+        # 1. VERIFICAÇÃO DE CAMPOS OBRIGATÓRIOS (EXISTENTE, MAS REFORÇADO)
+        if not nome or not nome.strip():
+            return jsonify({"error": "O campo 'nome' é obrigatório."}), 400
+        if not email or not email.strip():
+            return jsonify({"error": "O campo 'email' é obrigatório."}), 400
+        if not mensagem or not mensagem.strip():
+            return jsonify({"error": "O campo 'mensagem' é obrigatório."}), 400
+            
+        # 2. VALIDAÇÃO DO FORMATO DE EMAIL (NOVO)
+        if not re.fullmatch(EMAIL_REGEX, email.strip()):
+            return jsonify({"error": "O endereço de email fornecido não é válido."}), 400
         
         try:
             msg = Message(

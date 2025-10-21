@@ -4,23 +4,59 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 
+// Regex simples para validação de email
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 function Contactos() {
   const [formData, setFormData] = useState({
-    name: '',
+    nome: '', // Corrigido para 'nome' (igual ao backend)
     email: '',
-    message: '',
+    mensagem: '', // Corrigido para 'mensagem' (igual ao backend)
   });
+  
+  // ESTADO para guardar mensagens de erro de validação
+  const [errors, setErrors] = useState({}); 
 
   const handleChange = (e) => {
     const { id, value } = e.target;
+    // Limpa o erro do campo
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [id]: ''
+    }));
     setFormData((prevData) => ({
       ...prevData,
       [id]: value,
     }));
   };
 
+  // FUNÇÃO DE VALIDAÇÃO DO FRONTEND
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.nome.trim()) {
+      newErrors.nome = 'O nome é obrigatório.';
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = 'O email é obrigatório.';
+    } else if (!EMAIL_REGEX.test(formData.email.trim())) {
+      newErrors.email = 'Insira um email válido.';
+    }
+    if (!formData.mensagem.trim()) {
+      newErrors.mensagem = 'A mensagem é obrigatória.';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Retorna true se não houver erros
+  };
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // 1. Validação do Frontend (UX)
+    if (!validate()) {
+      return; // Se houver erros, pára aqui.
+    }
+    
     try {
       const response = await fetch('http://127.0.0.1:5000/contactos', {
         method: 'POST',
@@ -39,11 +75,13 @@ function Contactos() {
           email: '',
           mensagem: '',
         });
+        setErrors({}); // Limpa erros
       } else {
-        alert(result.error);
+        // Erro do backend (ex: erro de validação de segurança ou falha de envio)
+        alert(`Erro do Servidor: ${result.error}`);
       }
     } catch (error) {
-      alert("Formulário ainda em construção. Por favor contacte manualmente: jorgejimramos@gmail.com");
+      alert("Erro Desconhecido. Por favor contacte manualmente: jorgejimramos@gmail.com");
       console.error('Erro:', error);
     }
   };
@@ -54,6 +92,7 @@ function Contactos() {
         Contactos e Localização
       </Typography>
 
+      {/* SEÇÃO DE INFORMAÇÕES E MAPA (RESTAURO) */}
       <Paper elevation={3} sx={{ p: 4, mt: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
         <Box sx={{ flex: 1 }}>
           <Typography variant="h6" gutterBottom mb={4}>
@@ -89,6 +128,7 @@ function Contactos() {
           ></iframe>
         </Box>
       </Paper>
+      {/* FIM DA SEÇÃO DE INFORMAÇÕES E MAPA */}
 
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
         <Typography 
@@ -114,6 +154,9 @@ function Contactos() {
             id="nome"
             value={formData.nome} 
             onChange={handleChange} 
+            // PROPS DE ERRO
+            error={!!errors.nome}
+            helperText={errors.nome}
           />
           <TextField
             label="Email"
@@ -124,6 +167,9 @@ function Contactos() {
             id="email"
             value={formData.email} 
             onChange={handleChange}
+            // PROPS DE ERRO
+            error={!!errors.email}
+            helperText={errors.email}
           />
           <TextField
             label="Mensagem"
@@ -134,6 +180,9 @@ function Contactos() {
             id="mensagem" 
             value={formData.mensagem} 
             onChange={handleChange}
+            // PROPS DE ERRO
+            error={!!errors.mensagem}
+            helperText={errors.mensagem}
             sx={{ 
               mb: 3,
               '& .MuiInputBase-input': { 
