@@ -15,14 +15,14 @@ from auth import auth_bp
 from crud import crud_bp
 
 # INICIALIZAÇÃO DE VARIÁVEIS FORA DA APP (para serem usadas na função)
-mail = Mail() # <-- Inicialização sem a app
-jwt = JWTManager() # <-- Inicialização sem a app
-CORS_INSTANCE = CORS() # <-- Inicialização sem a app
+mail = Mail()
+jwt = JWTManager()
+CORS_INSTANCE = CORS()
 
 EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 # ####################################################################
-# #### FUNÇÃO PRINCIPAL: CRIA E CONFIGURA A APP (ESSENCIAL PARA VERCEL)
+# #### FUNÇÃO PRINCIPAL: CRIA E CONFIGURA A APP
 # ####################################################################
 
 def create_app():
@@ -32,9 +32,7 @@ def create_app():
     # 2. Configurações
     app.config.from_object(Config)
     
-    # 3. Inicializa as Extensões (AGORA COM A APP)
-    # A inicialização acontece AQUI, depois de a app estar criada,
-    # garantindo que o motor de conexão só é ativado no momento do pedido.
+    # 3. Inicializa as Extensões (Lazy Initialization)
     CORS_INSTANCE.init_app(app)
     db.init_app(app) 
     mail.init_app(app) 
@@ -48,12 +46,11 @@ def create_app():
     ####  ROTAS  ####
     #################
 
-    # HOME / INDEX
+    # HOME / INDEX (Rota /)
     @app.route('/')
     def home():
-        # Consulta a base de dados Neon
-        # NOTA: O Flask-SQLAlchemy gere a ligação à DB no momento desta consulta.
         try:
+            # Consulta a base de dados Neon
             maquinas = db.session.execute(db.select(Maquinas)).scalars().all()
 
             # Serialização dos dados para JSON
@@ -70,11 +67,11 @@ def create_app():
         
         except Exception as e:
             # Captura o erro da DB (timeout) e loga-o para vermos nos logs da Vercel
-            print(f"ERRO DE CONEXÃO DA DB: {e}")
+            print(f"ERRO DE CONEXÃO DA DB (Rota Home): {e}")
             return jsonify({"error": "Não foi possível carregar o stock da API."}), 503 # 503 Service Unavailable
 
-    # CONTACTOS / E-MAIL
-    @app.route('/contactos', methods=['POST']) # Removi o GET, pois não faz sentido na API
+    # CONTACTOS / E-MAIL (Rota /contactos)
+    @app.route('/contactos', methods=['POST']) 
     def contactos():
         if request.is_json == False:
             return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
@@ -84,7 +81,7 @@ def create_app():
         email = dados_email.get('email')
         mensagem = dados_email.get('mensagem')
         
-        # 1. VERIFICAÇÃO DE CAMPOS OBRIGATÓRIOS (EXISTENTE, MAS REFORÇADO)
+        # Validações...
         if not nome or not nome.strip():
             return jsonify({"error": "O campo 'nome' é obrigatório."}), 400
         if not email or not email.strip():
@@ -92,8 +89,6 @@ def create_app():
         if not mensagem or not mensagem.strip():
             return jsonify({"error": "O campo 'mensagem' é obrigatório."}), 400
             
-        # 2. VALIDAÇÃO DO FORMATO DE EMAIL (NOVO)
-        # O EMAIL_REGEX tem que ser acessível globalmente
         if not re.fullmatch(EMAIL_REGEX, email.strip()): 
             return jsonify({"error": "O endereço de email fornecido não é válido."}), 400
         
@@ -114,15 +109,22 @@ def create_app():
     return app
 
 # ####################################################################
-# #### EXECUÇÃO: O VERCEL SÓ PROCURA ESTA LINHA!
+# #### EXECUÇÃO COM TRATAMENTO DE ERROS DE STARTUP (DEBUGGING CRÍTICO)
 # ####################################################################
 
-# O Vercel procura pela variável 'app' no topo do ficheiro.
-app = create_app()
+# Tenta criar a aplicação. Se falhar no startup, captura o erro
+# e imprime-o, o que deve finalmente aparecer nos Vercel Logs.
+try:
+    app = create_app()
+except Exception as e:
+    # Esta mensagem DEVE aparecer nos Vercel Logs (Runtime)
+    print(f"FATAL APLICAÇÃO FALHOU A INICIAR (ERRO 500): {e}") 
+    # Relança o erro para que o Vercel saiba que falhou
+    raise e
+
 
 # INICIAR APP (Apenas para desenvolvimento local!)
 if __name__ == '__main__':
-    # Cria as tabelas da DB no arranque local, se necessário
     with app.app_context():
         db.create_all()
         
