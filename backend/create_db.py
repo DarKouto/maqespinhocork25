@@ -5,4 +5,4 @@ from models import Maquinas, Imagens, Utilizador
 
 with app.app_context():
     db.create_all() 
-    print("Tabelas criadas no Neon Postgres (ou já existiam).")
+    print("Tabelas criadas no Postgres (ou já existiam).")

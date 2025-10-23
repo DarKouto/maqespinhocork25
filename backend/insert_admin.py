@@ -31,4 +31,4 @@ with app.app_context():
         # 4. Adicionar à sessão e guardar
         db.session.add(novo_admin)
         db.session.commit()
-        print(f"Utilizador admin '{ADMIN_USERNAME}' criado e guardado no Neon com sucesso!")
+        print(f"Utilizador admin '{ADMIN_USERNAME}' criado e guardado com sucesso!")
