@@ -69,7 +69,7 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
 
       try {
         // Usa a nova função de fetch com retry! Tenta 3 vezes, com 3 segundos de espera.
-        const response = await fetchWithRetry(API_URL, 2, 3000);
+        const response = await fetchWithRetry(API_URL, 4, 4000);
 
         const data = await response.json();
 
