@@ -16,6 +16,10 @@
   ],
   "rewrites": [
     {
+      "source": "/",
+      "destination": "backend/app.py"
+    },
+    {
       "source": "/maquinas",
       "destination": "backend/app.py"
     },
