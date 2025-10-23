@@ -1,35 +1,8 @@
 {
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": { "installCommand": "npm install", "buildCommand": "npm run build" }
-    },
-    {
-      "src": "backend/app.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "15mb",
-        "runtime": "python3.9"
-      }
-    }
-  ],
   "rewrites": [
     {
-      "source": "/maquinas",
-      "destination": "backend/app.py"
-    },
-    {
-      "source": "/contactos",
-      "destination": "backend/app.py"
-    },
-    {
-      "source": "/admin/(.*)",
-      "destination": "backend/app.py"
-    },
-    {
       "source": "/(.*)",
-      "destination": "frontend/$1"
+      "destination": "/index.html"
     }
   ]
 }
