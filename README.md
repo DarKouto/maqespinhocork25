@@ -5,7 +5,7 @@ New MaqEspinhoCork web application, built from scratch, using:
  - Python
  - Flask
  - PostgreSQL
- - Neon
+ - Supabase
  - Vercel
 
 Work in progress
