@@ -17,15 +17,17 @@
   "rewrites": [
 
     {
-      "source": "/",
+      "source": "/maquinas",
       "destination": "backend/app.py"
     },
-
     {
       "source": "/contactos",
-      "destination": "frontend/index.html"
+      "destination": "backend/app.py"
     },
-
+    {
+      "source": "/admin/(.*)",
+      "destination": "backend/app.py"
+    },
     {
       "source": "/(.*)",
       "destination": "frontend/$1"
