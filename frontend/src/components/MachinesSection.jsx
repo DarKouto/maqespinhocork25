@@ -1,98 +1,37 @@
 import { useState, useEffect } from 'react';
 import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button, Box } from '@mui/material';
 import MachineDetailsDialog from './MachineDetailsDialog';
-import a1 from '../images/a1.jpeg';
-import b1 from '../images/b1.jpeg';
-import c1 from '../images/c1.jpeg';
-import d1 from '../images/d1.jpeg';
-import e1 from '../images/e1.jpeg';
-import f1 from '../images/f1.jpeg';
-
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 };
 
-function MachinesSection({ searchTerm, setSearchTerm }) { 
-  // ESTADOS PARA DADOS DA API E CONTROLO DE CARREGAMENTO
-  const [apiMachines, setApiMachines] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); 
-  const [error, setError] = useState(null); 
+function MachinesSection({ searchTerm, setSearchTerm }) {
+    // Estado para guardar as máquinas da API
+    const [machines, setMachines] = useState([]);
+    // Estado para o carregamento e erros
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
   
-  // DADOS HARDCODE (ID's NEGATIVOS para evitar conflito com a API)
-  const machines = [
-    {
-      id: -1, 
-      name: 'Ponçadeira',
-      description: 'Máquina de Ponçar Rolhas.',
-      imageUrl: a1,
-    },
-    {
-      id: -2, 
-      name: 'Lixadeira / Topejadeira',
-      description: 'Máquina de Topejar Rolhas.',
-      imageUrl: b1,
-    },
-    {
-      id: -3, 
-      name: 'Aspirador de Pó',
-      description: 'Aspirador de Pó / Dust Collector com duas saídas.',
-      imageUrl: c1,
-    },
-    {
-      id: -4, 
-      name: 'Máquina de Contar Rolhas',
-      description: 'Máquina de Contar Rolhas Automática.',
-      imageUrl: d1,
-    },
-    {
-      id: -5, 
-      name: 'Alimentador Automático / "Girafa',
-      description: 'Alimentador Automático / "Girafa. Produto MEC: MaqEspinhoCork',
-      imageUrl: e1,
-    },
-    {
-      id: -6, 
-      name: 'Marcadeira a Tinta',
-      description: 'Marcadeira de Rolhas completa a Tinta',
-      imageUrl: f1,
-    },
-  ];
-  
-  // FETCH DE DADOS DA API
-  useEffect(() => {
-    const API_URL = 'http://127.0.0.1:5000/'; 
+    useEffect(() => {
+      const fetchMachines = async () => {
+        try {
+          const response = await fetch('http://localhost:5000/maquinas');
 
-    fetch(API_URL)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Falha ao obter dados da API.');
+          if (!response.ok) {
+            throw new Error(`Erro: ${response.status}`);
+          }
+          const data = await response.json();
+          setMachines(data);
+        } catch (error) {
+          setError(error.message);
+        } finally {
+          setLoading(false);
         }
-        return response.json();
-      })
-      .then(data => {
-        // CORREÇÃO CRUCIAL: Mapeamento de Python (nome/descricao) para JavaScript (name/description)
-        const machinesWithImages = data.map(m => ({
-            id: Number(m.id), // Garante que o ID é número
-            name: m.nome, // << MAPEAMENTO CORRIGIDO
-            description: m.descricao, // << MAPEAMENTO CORRIGIDO
-            imageUrl: m.imageUrl || 'https://via.placeholder.com/200?text=Stock+API', // Placeholder
-        }));
-        
-        setApiMachines(machinesWithImages);
-        setIsLoading(false);
-      })
-      .catch(err => {
-        console.error("Erro na busca da API:", err);
-        setError("Não foi possível carregar o stock da API."); 
-        setIsLoading(false);
-      });
-  }, []); 
-
-
-  // COMBINAÇÃO: Hardcode + API
-  const allMachines = [...machines, ...apiMachines]; 
-
+      };
+      
+      fetchMachines();
+    }, []); // O array vazio assegura que o efeito só corre uma vez
   
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState(null);
@@ -108,46 +47,16 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
     setSearchTerm('');
   };
 
-  // DIAGNÓSTICO: DESATIVA O FILTRO TEMPORARIAMENTE
-  const filteredMachines = allMachines.filter(machine => { 
-    // Filtro de segurança (Objeto e Nome não podem ser nulos)
-    if (!machine || !machine.name) {
-        return false;
-    }
-
-    // Definir a descrição como "" se for nula/undefined
-    const description = machine.description || "";
-    
+  const filteredMachines = machines.filter(machine => {
     const searchTermNormalized = removeAccents(searchTerm.toLowerCase());
     const nameNormalized = removeAccents(machine.name.toLowerCase());
-    
-    // USAR a variável 'description' corrigida
-    const descriptionNormalized = removeAccents(description.toLowerCase()); 
+    const descriptionNormalized = removeAccents(machine.description.toLowerCase());
     
     return nameNormalized.includes(searchTermNormalized) || descriptionNormalized.includes(searchTermNormalized);
-});
+  });
   
-  // FEEDBACK DE CARREGAMENTO E ERRO
-  if (isLoading && allMachines.length === 0) {
-      return (
-        <Container maxWidth="lg">
-          <Typography variant="h6" align="center" sx={{ mt: 6 }}>
-            A carregar stock...
-          </Typography>
-        </Container>
-      );
-    }
-  
-  if (error) {
-      return (
-        <Container maxWidth="lg">
-          <Typography variant="h6" align="center" color="error" sx={{ mt: 6 }}>
-            {error}
-          </Typography>
-        </Container>
-      );
-    }
-
+    if (loading) return <div>A carregar máquinas...</div>;
+    if (error) return <div>Erro ao carregar máquinas: {error}</div>;
 
   return (
     <Container maxWidth="lg">
