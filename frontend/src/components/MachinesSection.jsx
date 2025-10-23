@@ -7,99 +7,93 @@ import c1 from '../images/c1.jpeg';
 import d1 from '../images/d1.jpeg';
 import e1 from '../images/e1.jpeg';
 import f1 from '../images/f1.jpeg';
-import fetchWithRetry from '../utils/fetchWithRetry'; // << NOVO IMPORT
+
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 };
 
-function MachinesSection({ searchTerm, setSearchTerm }) {
+function MachinesSection({ searchTerm, setSearchTerm }) { 
   // ESTADOS PARA DADOS DA API E CONTROLO DE CARREGAMENTO
   const [apiMachines, setApiMachines] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(true); 
+  const [error, setError] = useState(null); 
+  
   // DADOS HARDCODE (ID's NEGATIVOS para evitar conflito com a API)
   const machines = [
     {
-      id: -1,
+      id: -1, 
       name: 'Ponçadeira',
       description: 'Máquina de Ponçar Rolhas.',
       imageUrl: a1,
     },
     {
-      id: -2,
+      id: -2, 
       name: 'Lixadeira / Topejadeira',
       description: 'Máquina de Topejar Rolhas.',
       imageUrl: b1,
     },
     {
-      id: -3,
+      id: -3, 
       name: 'Aspirador de Pó',
       description: 'Aspirador de Pó / Dust Collector com duas saídas.',
       imageUrl: c1,
     },
     {
-      id: -4,
+      id: -4, 
       name: 'Máquina de Contar Rolhas',
       description: 'Máquina de Contar Rolhas Automática.',
       imageUrl: d1,
     },
     {
-      id: -5,
+      id: -5, 
       name: 'Alimentador Automático / "Girafa',
       description: 'Alimentador Automático / "Girafa. Produto MEC: MaqEspinhoCork',
       imageUrl: e1,
     },
     {
-      id: -6,
+      id: -6, 
       name: 'Marcadeira a Tinta',
       description: 'Marcadeira de Rolhas completa a Tinta',
       imageUrl: f1,
     },
   ];
-
+  
   // FETCH DE DADOS DA API
   useEffect(() => {
-    const API_URL = '/maquinas'; // CORRIGIDO para usar o endpoint Vercel
+    const API_URL = 'http://127.0.0.1:5000/'; 
 
-    async function fetchMachines() {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        // Usa a nova função de fetch com retry! Tenta 3 vezes, com 3 segundos de espera.
-        const response = await fetchWithRetry(API_URL, 4, 4000);
-
-        const data = await response.json();
-
+    fetch(API_URL)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Falha ao obter dados da API.');
+        }
+        return response.json();
+      })
+      .then(data => {
         // CORREÇÃO CRUCIAL: Mapeamento de Python (nome/descricao) para JavaScript (name/description)
         const machinesWithImages = data.map(m => ({
-          id: Number(m.id),
-          name: m.nome,
-          description: m.descricao,
-          imageUrl: m.imageUrl || 'https://via.placeholder.com/200?text=Stock+API', // Placeholder
+            id: Number(m.id), // Garante que o ID é número
+            name: m.nome, // << MAPEAMENTO CORRIGIDO
+            description: m.descricao, // << MAPEAMENTO CORRIGIDO
+            imageUrl: m.imageUrl || 'https://via.placeholder.com/200?text=Stock+API', // Placeholder
         }));
-
+        
         setApiMachines(machinesWithImages);
-
-      } catch (err) {
-        // Este erro é o erro final após todas as tentativas falhadas
-        console.error("Falha fatal ao carregar o stock da API:", err);
-        // Mantém a mensagem de erro que usas no estado
-        setError("Não foi possível carregar o stock da API.");
-
-      } finally {
         setIsLoading(false);
-      }
-    }
+      })
+      .catch(err => {
+        console.error("Erro na busca da API:", err);
+        setError("Não foi possível carregar o stock da API."); 
+        setIsLoading(false);
+      });
+  }, []); 
 
-    fetchMachines();
-  }, []); // Dependências vazias
 
   // COMBINAÇÃO: Hardcode + API
-  const allMachines = [...machines, ...apiMachines];
+  const allMachines = [...machines, ...apiMachines]; 
 
+  
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState(null);
 
@@ -114,45 +108,45 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
     setSearchTerm('');
   };
 
-  // Aplicação do filtro de pesquisa
-  const filteredMachines = allMachines.filter(machine => {
+  // DIAGNÓSTICO: DESATIVA O FILTRO TEMPORARIAMENTE
+  const filteredMachines = allMachines.filter(machine => { 
     // Filtro de segurança (Objeto e Nome não podem ser nulos)
     if (!machine || !machine.name) {
-      return false;
+        return false;
     }
 
     // Definir a descrição como "" se for nula/undefined
     const description = machine.description || "";
-
+    
     const searchTermNormalized = removeAccents(searchTerm.toLowerCase());
     const nameNormalized = removeAccents(machine.name.toLowerCase());
-
+    
     // USAR a variável 'description' corrigida
-    const descriptionNormalized = removeAccents(description.toLowerCase());
-
+    const descriptionNormalized = removeAccents(description.toLowerCase()); 
+    
     return nameNormalized.includes(searchTermNormalized) || descriptionNormalized.includes(searchTermNormalized);
-  });
-
+});
+  
   // FEEDBACK DE CARREGAMENTO E ERRO
   if (isLoading && allMachines.length === 0) {
-    return (
-      <Container maxWidth="lg">
-        <Typography variant="h6" align="center" sx={{ mt: 6 }}>
-          A carregar stock...
-        </Typography>
-      </Container>
-    );
-  }
-
+      return (
+        <Container maxWidth="lg">
+          <Typography variant="h6" align="center" sx={{ mt: 6 }}>
+            A carregar stock...
+          </Typography>
+        </Container>
+      );
+    }
+  
   if (error) {
-    return (
-      <Container maxWidth="lg">
-        <Typography variant="h6" align="center" color="error" sx={{ mt: 6 }}>
-          {error}
-        </Typography>
-      </Container>
-    );
-  }
+      return (
+        <Container maxWidth="lg">
+          <Typography variant="h6" align="center" color="error" sx={{ mt: 6 }}>
+            {error}
+          </Typography>
+        </Container>
+      );
+    }
 
 
   return (
@@ -181,7 +175,7 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
                   >
                     <CardMedia
                       component="img"
-                      sx={{
+                      sx={{ 
                         objectFit: 'cover',
                         aspectRatio: '1/1',
                         width: '100%',
@@ -198,11 +192,11 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
                       </Typography>
                     </CardContent>
                   </Box>
-
+                  
                   <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
-                    <Button
-                      size="small"
-                      variant="contained"
+                    <Button 
+                      size="small" 
+                      variant="contained" 
                       color="primary"
                       onClick={() => handleOpenDialog(machine)}
                     >
@@ -227,10 +221,10 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
         open={openDialog}
         handleClose={handleCloseDialogAndClearSearch}
       />
-      <Box sx={{ mb: 4 }}>
-      </Box>
+     <Box sx={{ mb: 4 }}>
+     </Box>
     </Container>
-
+    
   );
 }
 
