@@ -1,37 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button, Box } from '@mui/material';
 import MachineDetailsDialog from './MachineDetailsDialog';
+import a1 from '../images/a1.jpeg';
+import b1 from '../images/b1.jpeg';
+import c1 from '../images/c1.jpeg';
+import d1 from '../images/d1.jpeg';
+import e1 from '../images/e1.jpeg';
+import f1 from '../images/f1.jpeg';
+
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 };
 
-function MachinesSection({ searchTerm, setSearchTerm }) {
-    // Estado para guardar as máquinas da API
-    const [machines, setMachines] = useState([]);
-    // Estado para o carregamento e erros
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-  
-    useEffect(() => {
-      const fetchMachines = async () => {
-        try {
-          const response = await fetch('http://localhost:5000/maquinas');
-
-          if (!response.ok) {
-            throw new Error(`Erro: ${response.status}`);
-          }
-          const data = await response.json();
-          setMachines(data);
-        } catch (error) {
-          setError(error.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-      
-      fetchMachines();
-    }, []); // O array vazio assegura que o efeito só corre uma vez
+function MachinesSection({ searchTerm, setSearchTerm }) { 
+  const machines = [
+    {
+      id: 1,
+      name: 'Ponçadeira',
+      description: 'Máquina de Ponçar Rolhas.',
+      imageUrl: a1,
+    },
+    {
+      id: 2,
+      name: 'Lixadeira / Topejadeira',
+      description: 'Máquina de Topejar Rolhas.',
+      imageUrl: b1,
+    },
+    {
+      id: 3,
+      name: 'Aspirador de Pó',
+      description: 'Aspirador de Pó / Dust Collector com duas saídas.',
+      imageUrl: c1,
+    },
+    {
+      id: 4,
+      name: 'Máquina de Contar Rolhas',
+      description: 'Máquina de Contar Rolhas Automática.',
+      imageUrl: d1,
+    },
+    {
+      id: 5,
+      name: 'Alimentador Automático / "Girafa',
+      description: 'Alimentador Automático / "Girafa. Produto MEC: MaqEspinhoCork',
+      imageUrl: e1,
+    },
+    {
+      id: 6,
+      name: 'Marcadeira a Tinta',
+      description: 'Marcadeira de Rolhas completa a Tinta',
+      imageUrl: f1,
+    },
+  ];
   
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState(null);
@@ -54,9 +74,6 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
     
     return nameNormalized.includes(searchTermNormalized) || descriptionNormalized.includes(searchTermNormalized);
   });
-  
-    if (loading) return <div>A carregar máquinas...</div>;
-    if (error) return <div>Erro ao carregar máquinas: {error}</div>;
 
   return (
     <Container maxWidth="lg">
