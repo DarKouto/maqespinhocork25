@@ -28,12 +28,9 @@ EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 #################
 
 # HOME / INDEX
-@app.route('/')
-def home():
-    # Consulta a base de dados Neon
+@app.route('/', methods=['GET'])
+def machines_api():  # Nome da função alterado
     maquinas = Maquinas.query.all()
-    
-    # Serialização dos dados para JSON
     lista_maquinas = []
     for maquina in maquinas:
         lista_maquinas.append({
@@ -41,7 +38,6 @@ def home():
             'nome': maquina.nome,
             'descricao': maquina.descricao,
         })
-
     return jsonify(lista_maquinas)
 
 # CONTACTOS / E-MAIL
