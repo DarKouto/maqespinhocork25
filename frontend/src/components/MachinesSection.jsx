@@ -61,7 +61,7 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
   
   // FETCH DE DADOS DA API
   useEffect(() => {
-    const API_URL = 'http://127.0.0.1:5000/'; 
+    const API_URL = '/'; 
 
     fetch(API_URL)
       .then(response => {
