@@ -6,9 +6,12 @@
       "config": { "installCommand": "npm install", "buildCommand": "npm run build" }
     },
     {
+     
       "src": "backend/app.py",
       "use": "@vercel/python",
       "config": {
+       
+        "moduleName": "backend.app", 
         "maxLambdaSize": "15mb",
         "runtime": "python3.9"
       }
