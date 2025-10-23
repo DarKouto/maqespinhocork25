@@ -28,7 +28,7 @@ EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 #################
 
 # HOME / INDEX
-@app.route('/', methods=['GET'])
+@app.route('/api/', methods=['GET'])
 def machines_api():  # Nome da função alterado
     maquinas = Maquinas.query.all()
     lista_maquinas = []

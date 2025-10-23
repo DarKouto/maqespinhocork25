@@ -15,7 +15,6 @@
     }
   ],
   "rewrites": [
-
     {
       "source": "/api/(.*)",
       "destination": "backend/app.py"
@@ -25,7 +24,6 @@
       "source": "/contactos",
       "destination": "frontend/index.html"
     },
-
     {
       "source": "/(.*)",
       "destination": "frontend/$1"
