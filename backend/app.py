@@ -6,11 +6,11 @@ from flask_cors import CORS
 import re
 
 # IMPORTS DO REFACTOR
-from .extensions import db
-from .config import Config
-from .models import Maquinas
-from .auth import auth_bp
-from .crud import crud_bp
+from extensions import db
+from config import Config
+from models import Maquinas
+from auth import auth_bp
+from crud import crud_bp
 
 # CONFIGS
 app = Flask(__name__)
