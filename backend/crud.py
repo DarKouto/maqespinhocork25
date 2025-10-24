@@ -2,8 +2,8 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
 # IMPORTAÇÕES DO REFACTOR
-from models import Maquinas
-from extensions import db 
+from .models import Maquinas
+from .extensions import db 
 
 # Definição do Blueprint com o prefixo /admin
 crud_bp = Blueprint('crud_bp', __name__, url_prefix='/admin')
