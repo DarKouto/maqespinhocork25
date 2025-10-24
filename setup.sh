@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 echo "A criar/verificar ambiente virtual em backend/venv..."
 python -m venv backend/venv
 
