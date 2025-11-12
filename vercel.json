@@ -22,7 +22,7 @@
 
     {
       "source": "/contactos",
-      "destination": "frontend/index.html"
+      "destination": "backend/app.py"
     },
     {
       "source": "/(.*)",
