@@ -106,7 +106,7 @@ function Contactos() {
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <LocationOnIcon sx={{ mr: 1 }} />
             <Typography variant="body1">
-              Rua do Vergão 190<br />
+              Rua dos Figueiredos 190<br />
               4520-614 São João de Ver
             </Typography>
           </Box>
