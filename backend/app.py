@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_login import login_user, logout_user, login_required
 import re
 
 # IMPORTS DO REFACTOR
@@ -124,6 +125,13 @@ def admin_login():
 def admin_logout():
     logout_user()
     return jsonify({"message": "Logout bem-sucedido."}), 200
+
+# ROTA DE ADMIN PROTEGIDA (TESTE)
+@app.route('/admin/dashboard', methods=['GET'])
+@login_required # <--- ISTO É O QUE PROTEGE A ROTA
+def admin_dashboard():
+    # Se o Flask-Login deixar o utilizador passar daqui, significa que ele está logado.
+    return jsonify({"message": "BEM-VINDO, ESTA É A ÁREA PRIVADA!"}), 200
 
 
 # INICIAR APP
