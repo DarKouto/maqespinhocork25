@@ -57,8 +57,13 @@ function Contactos() {
       return; // Se houver erros, pára aqui.
     }
     
+    // ... dentro de handleSubmit ...
+
     try {
-      const response = await fetch('http://127.0.0.1:5000/contactos', {
+      // CORREÇÃO AQUI: Usa o URL relativo!
+      const API_URL = '/contactos'; 
+        
+      const response = await fetch(API_URL, { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
