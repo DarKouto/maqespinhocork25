@@ -19,9 +19,14 @@
       "source": "/api/(.*)",
       "destination": "backend/app.py"
     },
+
+    {
+      "source": "/contactos",
+      "destination": "backend/app.py"
+    },
     {
       "source": "/(.*)",
-      "destination": "frontend/index.html"
+      "destination": "frontend/$1"
     }
   ]
 }
