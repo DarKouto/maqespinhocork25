@@ -91,7 +91,7 @@ def contactos():
 ##################
 
 # 1. ROTA DE LOGIN (JWT)
-@app.route('/admin/login', methods=['POST'])
+@app.route('/api/admin/login', methods=['POST'])
 def admin_login():
     data = request.get_json()
     nome_utilizador = data.get('nome_utilizador')
@@ -112,7 +112,7 @@ def admin_login():
         return jsonify({'message': 'Nome de utilizador ou palavra-passe inválidos.'}), 401
 
 # 2. ROTA DE DASHBOARD (Protegida por JWT)
-@app.route('/admin/dashboard', methods=['GET'])
+@app.route('/api/admin/dashboard', methods=['GET'])
 @jwt_required()
 def admin_dashboard():
     current_user_id = get_jwt_identity() 
@@ -123,7 +123,7 @@ def admin_dashboard():
     }), 200
 
 # 3. ROTA DE LOGOUT (JWT)
-@app.route('/admin/logout', methods=['POST'])
+@app.route('/api/admin/logout', methods=['POST'])
 @jwt_required()
 def admin_logout():
     return jsonify({'message': 'Logout realizado com sucesso (token revogado no cliente).'}), 200

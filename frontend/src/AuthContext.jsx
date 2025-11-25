@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,16 +14,15 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Variável de Ambiente para a API (usando a convenção VITE_)
-    const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
+    const API_URL = '/api'; 
 
     // 2. Função de LOGIN
     const login = async (username, password) => {
         setLoading(true);
         setError(null);
         try {
-            // A chamada usa o proxy configurado no vite.config.js
-            const response = await axios.post(`${API_URL}/admin/login`, {
+            // Isto resolve para /api/admin/login (que é reescrito para o Flask)
+            const response = await axios.post(`${API_URL}/admin/login`, { 
                 nome_utilizador: username,
                 palavra_passe: password,
             });
