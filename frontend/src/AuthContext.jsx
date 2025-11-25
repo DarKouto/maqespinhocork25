@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     const [error, setError] = useState(null);
 
     // Variável de Ambiente para a API (usando a convenção VITE_)
-    const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:l.app/api/";
+    const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
 
     // 2. Função de LOGIN
     const login = async (username, password) => {
