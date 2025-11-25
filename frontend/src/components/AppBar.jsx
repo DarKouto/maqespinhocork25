@@ -21,15 +21,26 @@ import {
   Button,
   Container,
   useMediaQuery,
+  CircularProgress, // NOVO: Para o estado de loading
+  Snackbar, // NOVO: Para mostrar mensagens de erro/sucesso
+  Alert, // NOVO: Para usar com Snackbar
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
+import LogoutIcon from '@mui/icons-material/Logout'; // NOVO: Ícone para Logout
+import DashboardIcon from '@mui/icons-material/Dashboard'; // NOVO: Ícone para Admin
 import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom'; // NOVO: useNavigate
 import { useTheme } from '@mui/material/styles';
+
+// IMPORT DO CONTEXTO DE AUTENTICAÇÃO
+import { useAuth } from '../AuthContext'; 
+
+
+// ... (Styled components Search, SearchIconWrapper, StyledInputBase permanecem inalterados) ...
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -68,36 +79,81 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 function AppBar({ searchTerm, setSearchTerm }) {
+  // HOOKS DO CONTEXTO E NAVEGAÇÃO
+  const { isAuthenticated, login, logout, loading, error, setError } = useAuth();
+  const navigate = useNavigate();
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
-  
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // NOVO: Estado para Snackbar
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Handler para fechar Snackbar
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+    // Limpar o erro do contexto se for o caso
+    // if (error) { setError(null); } // Descomentar se o AuthContext tiver setError
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   const handleClickOpenLoginDialog = () => {
+    // Reset do formulário quando abre
+    setLoginForm({ username: '', password: '' });
     setOpenLoginDialog(true);
   };
 
   const handleCloseLoginDialog = () => {
     setOpenLoginDialog(false);
+    // Limpar o erro ao fechar o diálogo
+    // if (error) { setError(null); } // Descomentar se o AuthContext tiver setError
+  };
+  
+  const handleFormChange = (e) => {
+    const { id, value } = e.target;
+    setLoginForm(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleLogin = () => {
-    alert('Tentativa de Login (verifica a consola para valores)!');
-    console.log('Username:', document.getElementById('username-input').value);
-    console.log('Password:', document.getElementById('password-input').value);
-    handleCloseLoginDialog();
+  // FUNÇÃO DE LOGIN LIGADA AO CONTEXTO
+  const handleLogin = async () => {
+    // Verifica se os campos estão preenchidos (validação rápida)
+    if (!loginForm.username || !loginForm.password) {
+      alert("Preencha ambos os campos."); // Usamos alert aqui porque não é erro da API
+      return;
+    }
+
+    const success = await login(loginForm.username, loginForm.password);
+    
+    // Se o login foi bem-sucedido, o Contexto já faz o navigate('/admin')
+    if (success) {
+      handleCloseLoginDialog(); // Fecha o diálogo
+      setSnackbarOpen(true); // Abre o snackbar de sucesso
+    } else {
+      // Se falhar, o erro é tratado e mostrado na Snackbar, que é aberta no render
+      setSnackbarOpen(true);
+    }
+  };
+  
+  // FUNÇÃO DE LOGOUT
+  const handleLogout = () => {
+    logout(); // Chama a função logout do contexto
+    setSnackbarOpen(true); // Feedback de sucesso
+  };
+  
+  // NAVEGAÇÃO PARA ADMIN (quando autenticado)
+  const handleAdminClick = () => {
+    navigate('/admin');
   };
 
   const handleSearchChange = (event) => {
     const term = event.target.value;
     setSearchTerm(term);
     
-    // CORREÇÃO: Apenas faz scroll se não for mobile
     if (term.length > 0 && !isMobile) {
       const targetElement = document.getElementById('content-start');
       if (targetElement) {
@@ -109,6 +165,8 @@ function AppBar({ searchTerm, setSearchTerm }) {
   const navItems = [
     { name: 'Máquinas', path: '/', icon: <SettingsIcon /> },
     { name: 'Contactos', path: '/contactos', icon: <PermContactCalendarIcon /> },
+    // Adicionar Admin/Dashboard ao menu de navegação, se autenticado
+    ...(isAuthenticated ? [{ name: 'Dashboard', path: '/admin', icon: <DashboardIcon /> }] : []),
   ];
 
   const drawer = (
@@ -130,6 +188,17 @@ function AppBar({ searchTerm, setSearchTerm }) {
             </ListItemButton>
           </ListItem>
         ))}
+        {/* OPÇÃO DE LOGOUT NO MENU MOBILE SE AUTENTICADO */}
+        {isAuthenticated && (
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout} sx={{ textAlign: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                <LogoutIcon />
+                <ListItemText primary="Logout" sx={{ ml: 1 }} />
+              </Box>
+            </ListItemButton>
+          </ListItem>
+        )}
       </List>
     </Box>
   );
@@ -160,7 +229,8 @@ function AppBar({ searchTerm, setSearchTerm }) {
               </MuiLink>
             </Typography>
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, mr: 2, gap: 2 }}>
-              {navItems.map((item) => (
+              {/* Filtra navItems para não duplicar no Desktop, apenas para o menu normal */}
+              {navItems.filter(item => item.path !== '/admin').map((item) => ( 
                 <MuiLink
                   key={item.name}
                   component={RouterLink}
@@ -197,15 +267,42 @@ function AppBar({ searchTerm, setSearchTerm }) {
             </Search>
           </Box>
           <Box sx={{ ml: { xs: 'auto', sm: 0 } }}>
+            {/* Ícone de Login/Logout/Dashboard */}
             <IconButton
               size="large"
               edge="end"
               color="inherit"
-              aria-label="admin area"
-              onClick={handleClickOpenLoginDialog}
+              aria-label={isAuthenticated ? "Logout ou Dashboard" : "Login de administrador"}
+              onClick={isAuthenticated ? handleAdminClick : handleClickOpenLoginDialog}
             >
-              <AccountCircle />
+              {isAuthenticated ? <DashboardIcon /> : <AccountCircle />}
             </IconButton>
+            
+            {/* Se autenticado, mostramos o botão de Logout aqui no desktop */}
+            {isAuthenticated && (
+                <IconButton
+                    size="large"
+                    edge="end"
+                    color="inherit"
+                    aria-label="Logout"
+                    onClick={handleLogout}
+                    sx={{ display: { xs: 'none', sm: 'inline-flex' } }} // Só desktop
+                >
+                    <LogoutIcon />
+                </IconButton>
+            )}
+            
+            {/* Se não autenticado, mostramos o botão de Login */}
+            {!isAuthenticated && (
+                <Button 
+                    color="inherit" 
+                    onClick={handleClickOpenLoginDialog}
+                    sx={{ display: { xs: 'none', sm: 'inline-flex' }, ml: 1 }}
+                >
+                    Login
+                </Button>
+            )}
+
           </Box>
         </Toolbar>
       </Container>
@@ -225,32 +322,56 @@ function AppBar({ searchTerm, setSearchTerm }) {
           {drawer}
         </Drawer>
       </nav>
-      <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog}>
+      {/* Diálogo de Login */}
+      <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog} component="form" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
         <DialogTitle>Login de Administrador</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            id="username-input"
+            id="username" // ID alterado para corresponder ao state
             label="Utilizador"
             type="text"
             fullWidth
             variant="standard"
+            value={loginForm.username}
+            onChange={handleFormChange}
+            error={!!error}
           />
           <TextField
             margin="dense"
-            id="password-input"
+            id="password" // ID alterado para corresponder ao state
             label="Password"
             type="password"
             fullWidth
             variant="standard"
+            value={loginForm.password}
+            onChange={handleFormChange}
+            error={!!error}
+            helperText={error}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseLoginDialog}>Cancelar</Button>
-          <Button onClick={handleLogin}>Entrar</Button>
+          <Button onClick={handleCloseLoginDialog} disabled={loading}>Cancelar</Button>
+          <Button 
+            onClick={handleLogin} 
+            color="primary"
+            disabled={loading}
+            endIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+          >
+            {loading ? 'A Entrar...' : 'Entrar'}
+          </Button>
         </DialogActions>
       </Dialog>
+      
+      {/* Snackbar para Feedback de Login/Logout */}
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={error ? "error" : "success"} sx={{ width: '100%' }}>
+          {error 
+            ? error 
+            : (isAuthenticated ? "Login efetuado com sucesso!" : "Sessão encerrada (Logout).")}
+        </Alert>
+      </Snackbar>
     </MuiAppBar>
   );
 }

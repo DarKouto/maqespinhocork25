@@ -15,14 +15,12 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-
           <AppBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <Box component="main" sx={{ flexGrow: 1, mt: 8 }}>
             <Routes>
               <Route path="/" element={
                 <>
                   <HeroSection />
-
                   <div id="content-start">
                     <MachinesSection searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
                   </div>
