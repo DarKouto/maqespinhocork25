@@ -8,6 +8,8 @@ import HeroSection from './components/HeroSection';
 import MachinesSection from './components/MachinesSection';
 import Footer from './components/Footer';
 import Contactos from './components/Contactos';
+import ProtectedRoute from './components/ProtectedRoute';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +29,10 @@ function App() {
                 </>
               } />
               <Route path="/contactos" element={<Contactos />} />
+              <Route 
+                path="/admin" 
+                element={<ProtectedRoute element={Dashboard} />} 
+              />
             </Routes>
           </Box>
           <Footer />
