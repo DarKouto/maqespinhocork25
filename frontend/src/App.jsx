@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom'; 
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import { CssBaseline, Box } from '@mui/material';
@@ -14,7 +14,6 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
           <AppBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
@@ -34,7 +33,6 @@ function App() {
           </Box>
           <Footer />
         </Box>
-      </BrowserRouter>
     </ThemeProvider>
   );
 }
