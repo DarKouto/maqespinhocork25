@@ -5,25 +5,35 @@ from flask_jwt_extended import jwt_required
 from .models import Maquinas
 from .extensions import db 
 
-# Definição do Blueprint com o prefixo /admin
-crud_bp = Blueprint('crud_bp', __name__, url_prefix='/admin')
+# Definição do Blueprint com o prefixo /api/admin
+# 🛑 ATENÇÃO: A URL COMPLETA TEM DE SER /api/admin/ 🛑
+crud_bp = Blueprint('crud_bp', __name__, url_prefix='/api/admin')
 
 # OBTER TODAS AS MÁQUINAS (CRUD - READ)
-@crud_bp.route('/maquinas', methods=['GET']) # ROTAS JÁ NÃO PRECISAM DO /admin
+# URL FINAL: /api/admin/maquinas
+@crud_bp.route('/maquinas', methods=['GET']) 
 @jwt_required()
 def get_all_maquinas():
-    maquinas = Maquinas.query.all()
+    maquinas_db = Maquinas.query.all()
     lista_maquinas = []
-    for maquina in maquinas:
+    
+    # 🛑 ATENÇÃO: Aqui temos de usar a estrutura esperada pelo Dashboard.jsx
+    for maquina in maquinas_db:
         lista_maquinas.append({
             'id': maquina.id,
-            'nome': maquina.nome,
-            'descricao': maquina.descricao
+            'titulo_pt': maquina.nome, # Mapeia nome para titulo_pt
+            'descricao': maquina.descricao,
+            'preco_eur': 'N/A', 
+            'ano': 'N/A',       
         })
-    return jsonify(lista_maquinas)
+    
+    # 🛑 ATENÇÃO: TEM DE DEVOLVER NA CHAVE 'maquinas' 🛑
+    return jsonify({
+        'maquinas': lista_maquinas
+    }), 200
 
 # CRIAR UMA NOVA MÁQUINA (CRUD - CREATE)
-@crud_bp.route('/maquinas', methods=['POST']) # ROTAS JÁ NÃO PRECISAM DO /admin
+@crud_bp.route('/maquinas', methods=['POST']) 
 @jwt_required()
 def create_maquina():
     if not request.is_json:
@@ -42,7 +52,7 @@ def create_maquina():
     return jsonify({"message": f"Máquina '{nome}' criada com sucesso!"}), 201
 
 # ACTUALIZAR MÁQUINA (CRUD - UPDATE)
-@crud_bp.route('/maquinas/<int:maquina_id>', methods=['PUT']) # ROTAS JÁ NÃO PRECISAM DO /admin
+@crud_bp.route('/maquinas/<int:maquina_id>', methods=['PUT']) 
 @jwt_required()
 def update_maquina(maquina_id):
     if not request.is_json:
@@ -60,7 +70,7 @@ def update_maquina(maquina_id):
     return jsonify({"message": f"Máquina {maquina_id} atualizada com sucesso!"}), 200
 
 # APAGAR MÁQUINA (CRUD - DELETE)
-@crud_bp.route('/maquinas/<int:maquina_id>', methods=['DELETE']) # ROTAS JÁ NÃO PRECISAM DO /admin
+@crud_bp.route('/maquinas/<int:maquina_id>', methods=['DELETE']) 
 @jwt_required()
 def delete_maquina(maquina_id):
     maquina = Maquinas.query.get(maquina_id)

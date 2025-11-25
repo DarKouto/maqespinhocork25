@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,6 +14,8 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // Variável de Ambiente para a API. Usamos o proxy do Vite (/api).
+    // Usamos '/api' para ser consistente com o Vite.config.js
     const API_URL = '/api'; 
 
     // 2. Função de LOGIN
@@ -21,30 +23,25 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         setError(null);
         try {
-            // Isto resolve para /api/admin/login (que é reescrito para o Flask)
-            const response = await axios.post(`${API_URL}/admin/login`, { 
+            // A chamada usa o prefixo /api que o Flask espera
+            const response = await axios.post(`${API_URL}/admin/login`, {
                 nome_utilizador: username,
                 palavra_passe: password,
             });
 
             const newToken = response.data.access_token;
             
-            // a. Guardar no State
             setToken(newToken);
             setIsAuthenticated(true);
-
-            // b. Persistir no Navegador
             localStorage.setItem('access_token', newToken); 
             
             setLoading(false);
             
-            // Redireciona para a dashboard
             navigate('/admin'); 
             
             return true;
         } catch (err) {
             setLoading(false);
-            // Captura a mensagem de erro do backend ou uma mensagem genérica
             const errorMessage = err.response?.data?.message || "Erro de rede ou credenciais inválidas.";
             setError(errorMessage);
             console.error("Login falhou:", errorMessage);
@@ -54,21 +51,16 @@ export const AuthProvider = ({ children }) => {
 
     // 3. Função de LOGOUT
     const logout = () => {
-        // Opção: Fazer uma chamada ao backend para revogar o token (como já fizemos no Flask)
-        // Por enquanto, apenas limpamos o lado do cliente:
-        
         setToken(null);
         setIsAuthenticated(false);
         localStorage.removeItem('access_token');
         setError(null);
-        
-        // Redireciona para a página principal após logout
         navigate('/'); 
     };
 
     // 4. Hook para atualizar o cabeçalho 'Authorization' sempre que o token muda
     useEffect(() => {
-        // Isto é crucial: diz ao axios para incluir o token JWT em todas as chamadas futuras.
+        // Diz ao axios para incluir o token JWT em todas as chamadas futuras.
         if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } else {
@@ -78,16 +70,72 @@ export const AuthProvider = ({ children }) => {
     }, [token]);
 
 
+    // 5. AUXILIAR DE FETCH PROTEGIDA
+    const protectedFetch = async (endpoint, options = {}) => {
+        // Garantir que o endpoint começa com '/' se não estiver no API_URL
+        const finalEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        
+        try {
+            const url = `${API_URL}${finalEndpoint}`;
+            
+            // 🛑 ALTERAÇÃO CRUCIAL 🛑
+            // Criar o cabeçalho de autorização explicitamente usando o estado 'token'
+            const authHeader = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+            const response = await axios({
+                method: options.method || 'GET',
+                url: url,
+                data: options.data, // Para POST/PUT
+                // Combinar o cabeçalho de autenticação com quaisquer outros headers customizados
+                headers: { 
+                    ...authHeader, 
+                    ...options.headers 
+                },
+            });
+            
+            // Devolvemos data e error (null) no formato que o Dashboard espera
+            return { data: response.data, error: null };
+            
+        } catch (err) {
+            // Lógica de tratamento de erros
+            if (err.response) {
+                 // Erro 401: Token expirado/inválido
+                if (err.response.status === 401) {
+                    setError("Sessão expirada. Faça login novamente.");
+                    logout(); 
+                    return { data: null, error: "Sessão expirada." };
+                }
+                
+                // Outros erros de resposta do servidor (404, 500, etc.)
+                const errorMessage = err.response.data?.message || `Erro do Servidor (${err.response.status}).`;
+                return { data: null, error: errorMessage };
+            }
+
+            // Erro de rede (ex: servidor Flask desligado)
+            return { data: null, error: "Erro de rede. O servidor pode estar desligado." };
+        }
+    };
+
+
     return (
         <AuthContext.Provider 
-            value={{ token, isAuthenticated, login, logout, loading, error, API_URL }}
+            value={{ 
+                token, 
+                isAuthenticated, 
+                login, 
+                logout, 
+                loading, 
+                error, 
+                API_URL,
+                protectedFetch 
+            }}
         >
             {children}
         </AuthContext.Provider>
     );
 };
 
-// 5. Hook Personalizado
+// 6. Hook Personalizado
 export const useAuth = () => {
     return useContext(AuthContext);
 };

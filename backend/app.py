@@ -9,7 +9,7 @@ from werkzeug.security import check_password_hash
 # IMPORTS DO REFACTOR
 from .extensions import db
 from .config import Config
-from .models import Maquinas, Utilizador # <--- Importar Utilizador é crucial
+from .models import Maquinas, Utilizador 
 from .auth import auth_bp
 from .crud import crud_bp
 
@@ -18,8 +18,11 @@ app = Flask(__name__)
 CORS(app)
 app.config.from_object(Config)
 db.init_app(app)
+
+# REGISTO DOS BLUEPRINTS
 app.register_blueprint(auth_bp)
-app.register_blueprint(crud_bp)
+app.register_blueprint(crud_bp) 
+
 mail = Mail(app)
 jwt = JWTManager(app)
 EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
@@ -28,6 +31,23 @@ EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 ####  ROTAS  ####
 #################
 
+# ROTA DE DIAGNÓSTICO DE URLS (NOVA)
+@app.route('/debug/urls', methods=['GET'])
+def list_routes():
+    """Lista todas as rotas registadas no Flask para debug."""
+    output = []
+    for rule in app.url_map.iter_rules():
+        # Excluir rotas de debug e estáticas
+        if rule.endpoint not in ('static', 'list_routes'):
+            methods = ','.join(rule.methods)
+            output.append({
+                'endpoint': rule.endpoint,
+                'methods': methods,
+                'url': str(rule)
+            })
+    return jsonify({'routes': output})
+
+
 # HOME / INDEX (API para o frontend)
 @app.route('/api/', methods=['GET'])
 def machines_api():
@@ -35,7 +55,6 @@ def machines_api():
     maquinas = Maquinas.query.all()
     lista_maquinas = []
     for maquina in maquinas:
-        # Nota: Idealmente, as imagens seriam incluídas aqui
         lista_maquinas.append({
             'id': maquina.id,
             'nome': maquina.nome,
@@ -47,6 +66,7 @@ def machines_api():
 @app.route('/contactos', methods=['GET', 'POST'])
 def contactos():
     """Lida com o formulário de contacto e envia o e-mail."""
+    # (Resto da função contactos...)
     if request.method == 'POST':
         if not request.is_json:
             return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
@@ -83,7 +103,6 @@ def contactos():
             return jsonify({"error": "Não foi possível enviar a mensagem. Por favor, tente de novo mais tarde."}), 500
     
     else:
-        # Se for um GET, responde apenas com uma mensagem de status
         return "Estás na página contactos. Usa POST para enviar dados."
     
 ##################
@@ -97,10 +116,8 @@ def admin_login():
     nome_utilizador = data.get('nome_utilizador')
     palavra_passe = data.get('palavra_passe')
 
-    # 1. Encontrar o utilizador na DB
     utilizador = Utilizador.query.filter_by(nome_utilizador=nome_utilizador).first()
 
-    # 2. Verificar o utilizador e a hash da password
     if utilizador and check_password_hash(utilizador.palavra_passe, palavra_passe):
         access_token = create_access_token(identity=str(utilizador.id))
         return jsonify({
@@ -111,18 +128,7 @@ def admin_login():
     else:
         return jsonify({'message': 'Nome de utilizador ou palavra-passe inválidos.'}), 401
 
-# 2. ROTA DE DASHBOARD (Protegida por JWT)
-@app.route('/api/admin/dashboard', methods=['GET'])
-@jwt_required()
-def admin_dashboard():
-    current_user_id = get_jwt_identity() 
-    return jsonify({
-        'message': f'BEM-VINDO, ESTA É A ÁREA PRIVADA (Admin ID: {current_user_id})!',
-        'instrucoes': 'Usa este token para aceder às rotas CRUD.',
-        'user_id': current_user_id
-    }), 200
-
-# 3. ROTA DE LOGOUT (JWT)
+# 2. ROTA DE LOGOUT (JWT)
 @app.route('/api/admin/logout', methods=['POST'])
 @jwt_required()
 def admin_logout():
@@ -130,4 +136,4 @@ def admin_logout():
 
 # INICIAR APP
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

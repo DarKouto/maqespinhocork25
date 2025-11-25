@@ -14,38 +14,58 @@ import {
     Alert
 } from '@mui/material';
 import { useAuth } from '../AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 function Dashboard() {
-    // Incluímos protectedFetch e outros estados do AuthContext
-    const { logout, token, protectedFetch, error, setError } = useAuth(); 
+    // 🛑 CORREÇÃO AQUI: Removemos 'setError' e 'setGlobalError'
+    // Assumimos que o AuthContext só expõe: logout, token, protectedFetch, isAuthenticated, error (global)
+    const { logout, token, protectedFetch, error: globalError } = useAuth(); 
+    
     const [machines, setMachines] = useState([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const [fetchErrorMessage, setFetchErrorMessage] = useState(null); // Para erros específicos do fetch
 
     const displayToken = token ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}` : 'Nenhum token';
 
-    // Função para buscar as máquinas
-    const fetchMachines = async () => {
-        setIsLoadingData(true);
-        setError(null); // Limpamos erros antes de nova tentativa
+    const fetchMachines = useCallback(async () => {
+        if (!token) {
+            setIsLoadingData(false);
+            return;
+        }
 
-        // Chamada à rota Flask protegida /api/admin/maquinas
-        const { data, error: fetchError } = await protectedFetch('/api/admin/maquinas');
+        setIsLoadingData(true);
+        setFetchErrorMessage(null);
+
+        console.log("INÍCIO FETCH: A chamar /admin/maquinas..."); 
         
+        // Chamada à rota Flask protegida
+        // Usamos o endpoint /admin/maquinas, que o AuthContext converte para /api/admin/maquinas
+        const { data, error: fetchError } = await protectedFetch('/admin/maquinas');
+        
+        console.log("DEBUG 1: fetchError (Se falhou):", fetchError); 
+        console.log("DEBUG 2: Dados recebidos (data):", data); 
+        console.log("DEBUG 3: Chave 'maquinas':", data?.maquinas); 
+
         if (data && data.maquinas) {
             setMachines(data.maquinas);
+            // 🛑 PRÓXIMA ETAPA DE DEBUG: Se receberes os dados, o erro 404 está resolvido!
+            console.log("DEBUG 4: SUCESSO. Máquinas carregadas:", data.maquinas.length);
         } else if (fetchError) {
-            console.error("Erro ao carregar máquinas:", fetchError);
+            // Este é o log para o 404 persistente
+            setFetchErrorMessage(`Falha ao carregar máquinas: ${fetchError}`);
+            console.error("DEBUG X: ERRO fatal ao carregar máquinas:", fetchError);
+        } else if (data && !data.maquinas) {
+            setFetchErrorMessage("Resposta do servidor inválida (chave 'maquinas' ausente).");
+            setMachines([]); 
         }
+        
         setIsLoadingData(false);
-    };
+        console.log("DEBUG 5: Estado de Loading desligado. (O círculo deve desaparecer).");
+    }, [token, protectedFetch]);
 
-    // Carregar as máquinas quando o componente é montado
     useEffect(() => {
-        if (token) {
-            fetchMachines();
-        }
-    }, [token]); 
+        fetchMachines();
+    }, [fetchMachines]); 
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -57,10 +77,10 @@ function Dashboard() {
                     Bem-vindo, Daniel. Podes gerir as tuas máquinas aqui.
                 </Typography>
                 
-                {/* Visualização de Erro */}
-                {error && (
+                {/* Visualização de Erro (Erro Global do AuthContext OU erro local de fetch) */}
+                {(globalError || fetchErrorMessage) && (
                     <Alert severity="error" sx={{ mb: 2 }}>
-                        {error}
+                        {globalError || fetchErrorMessage}
                     </Alert>
                 )}
 
@@ -75,7 +95,10 @@ function Dashboard() {
                             <CircularProgress />
                         </Box>
                     ) : machines.length === 0 ? (
-                        <Alert severity="info">Nenhuma máquina encontrada no sistema.</Alert>
+                        <Alert severity="info">
+                            {/* Mostra mensagem de erro de fetch OU a mensagem de que não há máquinas */}
+                            {fetchErrorMessage ? "Erro na busca. Verifique a consola para mais detalhes." : "Nenhuma máquina encontrada no sistema."}
+                        </Alert>
                     ) : (
                         <TableContainer component={Paper}>
                             <Table sx={{ minWidth: 650 }} aria-label="tabela de máquinas">
