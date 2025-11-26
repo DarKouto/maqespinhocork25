@@ -61,8 +61,6 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         // Diz ao axios para incluir o token JWT em todas as chamadas futuras.
         if (token) {
-            // NOTA: Ao usar axios.defaults, o protectedFetch não precisa de adicionar o token manualmente! 
-            // O Dashboard não precisa do header 'Authorization' nas options.
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } else {
             // Remove o cabeçalho se não houver token (para rotas não protegidas)
@@ -73,57 +71,53 @@ export const AuthProvider = ({ children }) => {
 
     // 5. AUXILIAR DE FETCH PROTEGIDA
     const protectedFetch = async (endpoint, options = {}) => {
-        // Garantir que o endpoint começa com '/' se não estiver no API_URL
-        // O Dashboard está a passar '/admin/maquinas', por isso só precisamos do '/api'
         const finalEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
         
         try {
             const url = `${API_URL}${finalEndpoint}`;
             
-            // 🛑 CORREÇÃO CRUCIAL 🛑
-            // Garantir que o Content-Type é sempre JSON para POST/PUT, 
-            // a menos que o utilizador passe um Content-Type diferente (e.g., para File Upload)
             const method = (options.method || 'GET').toUpperCase();
-            
             let finalHeaders = { ...options.headers };
             
-            // Se for POST ou PUT E houver dados, garantimos que é JSON (assumindo que newMachineData é um objeto)
-            if (['POST', 'PUT'].includes(method) && options.data && !options.headers?.['Content-Type']) {
-                finalHeaders = {
-                    'Content-Type': 'application/json',
-                    ...options.headers, // Os headers customizados têm prioridade
-                };
-            }
-            
-            // Usar 'data' em vez de 'body' para o axios
             const dataPayload = options.data || undefined; 
-            
-            // Nota: O axios já deve estar a enviar o Auth header via axios.defaults.headers.common (ver useEffect acima)
+
+            // 🛑 CORREÇÃO IMPLEMENTADA AQUI:
+            // 1. Só verifica POST/PUT se houver payload.
+            if (['POST', 'PUT'].includes(method) && dataPayload) {
+                // 2. CRÍTICO: Se o payload NÃO for FormData E não tiver um Content-Type definido,
+                // assume que é JSON. Se for FormData, permite que o Axios/Browser defina o 'multipart'.
+                if (!(dataPayload instanceof FormData) && !options.headers?.['Content-Type']) {
+                    finalHeaders = {
+                        'Content-Type': 'application/json',
+                        ...options.headers, // Mantém outros headers customizados
+                    };
+                }
+            }
+
+            // Nota: O cabeçalho Authorization já está em axios.defaults.headers.common
             
             const response = await axios({
                 method: method,
                 url: url,
                 data: dataPayload, 
-                // Passar apenas os headers customizados (Auth já está em defaults)
+                // Passar headers (agora contém 'Content-Type: application/json' ou está vazio/personalizado)
                 headers: finalHeaders, 
             });
             
-            // Devolvemos data e error (null) no formato que o Dashboard espera
             return { data: response.data, error: null };
             
         } catch (err) {
-            // Lógica de tratamento de erros
             if (err.response) {
                  // Erro 401: Token expirado/inválido
                 if (err.response.status === 401) {
-                    // O erro de AuthContext deve ser o que o utilizador vê
                     setError("Sessão expirada. Faça login novamente.");
                     logout(); 
                     return { data: null, error: "Sessão expirada." };
                 }
                 
                 // Outros erros de resposta do servidor (incluindo o 400 do Flask)
-                const errorMessage = err.response.data?.message || `Erro do Servidor (${err.response.status}).`;
+                // Usar err.response.data diretamente se for string, ou a message.
+                const errorMessage = err.response.data?.message || err.response.data || `Erro do Servidor (${err.response.status}).`;
                 return { data: null, error: errorMessage };
             }
 

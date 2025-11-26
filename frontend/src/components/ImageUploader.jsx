@@ -7,7 +7,7 @@ import { useAuth } from '../AuthContext';
 
 /**
  * Componente para fazer upload de uma imagem e associá-la a um ID de máquina.
- * * @param {number} maquinaId - O ID da máquina alvo para o upload.
+ * @param {number} maquinaId - O ID da máquina alvo para o upload.
  * @param {function} onUploadSuccess - Callback chamado quando o upload é bem-sucedido.
  * @param {string} uploadEndpoint - O endpoint de upload no backend (e.g., '/admin/maquinas/1/upload-imagem').
  */
@@ -49,22 +49,28 @@ function ImageUploader({ maquinaId, onUploadSuccess, uploadEndpoint }) {
 
         // FormData é necessário para enviar ficheiros via Fetch API
         const formData = new FormData();
+        // A chave 'file' deve corresponder exatamente ao que o Flask espera: request.files['file']
         formData.append('file', selectedFile);
 
         // O endpoint já é passado com o ID da máquina
         const { data, error: uploadError } = await protectedFetch(uploadEndpoint, {
             method: 'POST',
-            body: formData, // Em vez de 'data', usamos 'body' para FormData
-            isFormData: true // Flag para o protectedFetch saber que deve omitir o Content-Type: application/json
+            
+            // 🛑 CORREÇÃO CRÍTICA: Mudar 'body' para 'data'. O protectedFetch usa axios, que espera 'data'.
+            data: formData, 
+            
+            // 🛑 REMOVER: A flag 'isFormData: true' é desnecessária. O protectedFetch deteta FormData no campo 'data' e ajusta os cabeçalhos.
+            // isFormData: true 
         });
 
         setIsUploading(false);
 
         if (data && data.message) {
-            setUploadMessage({ type: 'success', text: 'Imagem carregada!' });
+            setUploadMessage({ type: 'success', text: data.message || 'Imagem carregada!' });
             onUploadSuccess(data.url); // Chama o callback com o novo URL
             setSelectedFile(null); // Limpa o input
         } else if (uploadError) {
+            // O uploadError é agora uma string formatada no AuthContext, eliminando o "[object Object]"
             setUploadMessage({ type: 'error', text: `Erro no upload: ${uploadError}` });
         } else {
             setUploadMessage({ type: 'error', text: 'Erro desconhecido durante o upload.' });
