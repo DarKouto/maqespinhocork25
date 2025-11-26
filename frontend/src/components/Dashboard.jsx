@@ -23,6 +23,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close'; // Ícone para fechar
 import AddIcon from '@mui/icons-material/Add'; // Ícone para adicionar
+import DeleteIcon from '@mui/icons-material/Delete'; // Ícone para eliminar
 import { useAuth } from '../AuthContext';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -42,14 +43,18 @@ function Dashboard() {
     });
     const [isCreating, setIsCreating] = useState(false);
     const [createMessage, setCreateMessage] = useState({ type: null, text: '' });
-    // -------------------------------------
+    
+    // --- NOVOS ESTADOS PARA O MODAL DE ELIMINAÇÃO ---
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [machineToDeleteId, setMachineToDeleteId] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteMessage, setDeleteMessage] = useState({ type: null, text: '' });
+    // ------------------------------------------------
 
     const displayToken = token ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}` : 'Nenhum token';
 
     // Função de fetch que lista as máquinas (mantida)
     const fetchMachines = useCallback(async () => {
-        // Usar o token que está no estado do AuthContext
-        // Embora o AuthContext faça a verificação, é uma boa prática verificar localmente
         if (!token) {
             setIsLoadingData(false);
             return;
@@ -60,14 +65,12 @@ function Dashboard() {
 
         console.log("INÍCIO FETCH: A chamar /admin/maquinas..."); 
         
-        // protectedFetch('/admin/maquinas') funciona com GET por defeito
         const { data, error: fetchError } = await protectedFetch('/admin/maquinas');
         
         if (data && data.maquinas) {
             setMachines(data.maquinas);
             console.log("SUCESSO. Máquinas carregadas:", data.maquinas.length);
         } else if (fetchError) {
-            // O AuthContext já trata de erros 401 e erros de rede
             setFetchErrorMessage(`Falha ao carregar máquinas: ${fetchError}`);
         } else if (data && !data.maquinas) {
             setFetchErrorMessage("Resposta do servidor inválida (chave 'maquinas' ausente).");
@@ -75,16 +78,15 @@ function Dashboard() {
         }
         
         setIsLoadingData(false);
-    }, [token, protectedFetch]); // Dependências do useCallback
+    }, [token, protectedFetch]);
 
     useEffect(() => {
-        // Se houver token, carrega as máquinas
         if (token) {
             fetchMachines();
         }
-    }, [token, fetchMachines]); // Incluir token para garantir o re-fetch após login
+    }, [token, fetchMachines]); 
 
-    // --- LÓGICA DE CRIAÇÃO ---
+    // --- LÓGICA DE CRIAÇÃO (MANTIDA) ---
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -92,7 +94,6 @@ function Dashboard() {
     };
 
     const handleAddMachine = async () => {
-        // Validação mínima
         if (!newMachineData.nome || !newMachineData.descricao) {
             setCreateMessage({ type: 'error', text: 'Nome e Descrição são obrigatórios.' });
             return;
@@ -101,22 +102,18 @@ function Dashboard() {
         setIsCreating(true);
         setCreateMessage({ type: null, text: '' });
 
-        // 🛑 CORREÇÃO AQUI 🛑
-        // 1. Usar 'data' em vez de 'body' para o Axios
-        // 2. O AuthContext agora gere o Content-Type: application/json quando há dados
         const { data, error: createError } = await protectedFetch('/admin/maquinas', {
             method: 'POST',
-            data: newMachineData // Axios usa 'data' para o corpo (que será serializado para JSON)
+            data: newMachineData // Usa 'data' para Axios
         });
 
         setIsCreating(false);
 
         if (data && data.message) {
             setCreateMessage({ type: 'success', text: data.message });
-            setNewMachineData({ nome: '', descricao: '' }); // Limpar formulário
-            fetchMachines(); // Recarregar a lista de máquinas (para que a nova máquina apareça)
+            setNewMachineData({ nome: '', descricao: '' }); 
+            fetchMachines(); 
             
-            // Fechar o modal após um pequeno atraso para o utilizador ver a mensagem de sucesso
             setTimeout(() => {
                 setIsAddModalOpen(false);
                 setCreateMessage({ type: null, text: '' });
@@ -129,7 +126,54 @@ function Dashboard() {
         }
     };
 
-    // -------------------------
+    // --- LÓGICA DE ELIMINAÇÃO (NOVA) ---
+
+    const openDeleteDialog = (machineId) => {
+        setMachineToDeleteId(machineId);
+        setDeleteMessage({ type: null, text: '' });
+        setIsDeleteModalOpen(true);
+    };
+
+    const closeDeleteDialog = () => {
+        setIsDeleteModalOpen(false);
+        setMachineToDeleteId(null);
+        setDeleteMessage({ type: null, text: '' });
+    };
+
+    const handleDeleteMachine = async () => {
+        if (!machineToDeleteId) return;
+
+        setIsDeleting(true);
+        setDeleteMessage({ type: null, text: '' });
+
+        // Chama o endpoint DELETE: /admin/maquinas/<id>
+        const endpoint = `/admin/maquinas/${machineToDeleteId}`;
+
+        const { data, error: deleteError } = await protectedFetch(endpoint, {
+            method: 'DELETE',
+            // O corpo não é necessário para o DELETE, mas podemos enviar um objeto vazio
+            // data: {}
+        });
+
+        setIsDeleting(false);
+
+        if (data && data.message) {
+            setDeleteMessage({ type: 'success', text: data.message });
+            fetchMachines(); // Recarregar a lista
+            
+            // Fechar o modal após um pequeno atraso
+            setTimeout(() => {
+                closeDeleteDialog();
+            }, 1500); 
+
+        } else if (deleteError) {
+            setDeleteMessage({ type: 'error', text: `Erro ao eliminar máquina: ${deleteError}` });
+        } else {
+            setDeleteMessage({ type: 'error', text: 'Erro desconhecido ao eliminar máquina.' });
+        }
+    };
+
+    // -----------------------------------
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -206,7 +250,15 @@ function Dashboard() {
                                             </TableCell>
                                             <TableCell>
                                                 <Button size="small" variant="outlined" sx={{ mr: 1 }}>Editar</Button>
-                                                <Button size="small" variant="outlined" color="error">Eliminar</Button>
+                                                <Button 
+                                                    size="small" 
+                                                    variant="contained" 
+                                                    color="error"
+                                                    startIcon={<DeleteIcon sx={{ fontSize: '1rem' }} />}
+                                                    onClick={() => openDeleteDialog(machine.id)} // NOVO
+                                                >
+                                                    Eliminar
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -236,7 +288,7 @@ function Dashboard() {
                 </Button>
             </Box>
 
-            {/* --- MODAL PARA ADICIONAR NOVA MÁQUINA --- */}
+            {/* --- MODAL PARA ADICIONAR NOVA MÁQUINA (MANTIDO) --- */}
             <Dialog 
                 open={isAddModalOpen} 
                 onClose={() => setIsAddModalOpen(false)}
@@ -312,6 +364,49 @@ function Dashboard() {
                 </DialogActions>
             </Dialog>
             {/* ------------------------------------------- */}
+
+            {/* --- NOVO: MODAL DE CONFIRMAÇÃO DE ELIMINAÇÃO --- */}
+            <Dialog 
+                open={isDeleteModalOpen} 
+                onClose={closeDeleteDialog}
+                maxWidth="xs"
+            >
+                <DialogTitle sx={{ color: 'error.main' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <DeleteIcon sx={{ mr: 1 }} /> Confirmar Eliminação
+                    </Box>
+                </DialogTitle>
+                <DialogContent>
+                    {deleteMessage.text ? (
+                        <Alert severity={deleteMessage.type} sx={{ mb: 2 }}>
+                            {deleteMessage.text}
+                        </Alert>
+                    ) : (
+                        <Typography variant="body1">
+                            Tem a certeza que deseja **eliminar** a máquina com o ID: **{machineToDeleteId}**? Esta ação é irreversível.
+                        </Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button 
+                        onClick={closeDeleteDialog}
+                        color="inherit"
+                        disabled={isDeleting}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button 
+                        onClick={handleDeleteMachine} 
+                        color="error" 
+                        variant="contained"
+                        disabled={isDeleting}
+                        startIcon={isDeleting ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon />}
+                    >
+                        {isDeleting ? 'A Eliminar...' : 'Sim, Eliminar'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            {/* ---------------------------------------------------- */}
         </Container>
     );
 }
