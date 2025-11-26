@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
     const [error, setError] = useState(null);
 
     // Variável de Ambiente para a API. Usamos o proxy do Vite (/api).
-    // Usamos '/api' para ser consistente com o Vite.config.js
     const API_URL = '/api'; 
 
     // 2. Função de LOGIN
@@ -62,6 +61,8 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         // Diz ao axios para incluir o token JWT em todas as chamadas futuras.
         if (token) {
+            // NOTA: Ao usar axios.defaults, o protectedFetch não precisa de adicionar o token manualmente! 
+            // O Dashboard não precisa do header 'Authorization' nas options.
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } else {
             // Remove o cabeçalho se não houver token (para rotas não protegidas)
@@ -73,24 +74,38 @@ export const AuthProvider = ({ children }) => {
     // 5. AUXILIAR DE FETCH PROTEGIDA
     const protectedFetch = async (endpoint, options = {}) => {
         // Garantir que o endpoint começa com '/' se não estiver no API_URL
+        // O Dashboard está a passar '/admin/maquinas', por isso só precisamos do '/api'
         const finalEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
         
         try {
             const url = `${API_URL}${finalEndpoint}`;
             
-            // 🛑 ALTERAÇÃO CRUCIAL 🛑
-            // Criar o cabeçalho de autorização explicitamente usando o estado 'token'
-            const authHeader = token ? { 'Authorization': `Bearer ${token}` } : {};
-
+            // 🛑 CORREÇÃO CRUCIAL 🛑
+            // Garantir que o Content-Type é sempre JSON para POST/PUT, 
+            // a menos que o utilizador passe um Content-Type diferente (e.g., para File Upload)
+            const method = (options.method || 'GET').toUpperCase();
+            
+            let finalHeaders = { ...options.headers };
+            
+            // Se for POST ou PUT E houver dados, garantimos que é JSON (assumindo que newMachineData é um objeto)
+            if (['POST', 'PUT'].includes(method) && options.data && !options.headers?.['Content-Type']) {
+                finalHeaders = {
+                    'Content-Type': 'application/json',
+                    ...options.headers, // Os headers customizados têm prioridade
+                };
+            }
+            
+            // Usar 'data' em vez de 'body' para o axios
+            const dataPayload = options.data || undefined; 
+            
+            // Nota: O axios já deve estar a enviar o Auth header via axios.defaults.headers.common (ver useEffect acima)
+            
             const response = await axios({
-                method: options.method || 'GET',
+                method: method,
                 url: url,
-                data: options.data, // Para POST/PUT
-                // Combinar o cabeçalho de autenticação com quaisquer outros headers customizados
-                headers: { 
-                    ...authHeader, 
-                    ...options.headers 
-                },
+                data: dataPayload, 
+                // Passar apenas os headers customizados (Auth já está em defaults)
+                headers: finalHeaders, 
             });
             
             // Devolvemos data e error (null) no formato que o Dashboard espera
@@ -101,12 +116,13 @@ export const AuthProvider = ({ children }) => {
             if (err.response) {
                  // Erro 401: Token expirado/inválido
                 if (err.response.status === 401) {
+                    // O erro de AuthContext deve ser o que o utilizador vê
                     setError("Sessão expirada. Faça login novamente.");
                     logout(); 
                     return { data: null, error: "Sessão expirada." };
                 }
                 
-                // Outros erros de resposta do servidor (404, 500, etc.)
+                // Outros erros de resposta do servidor (incluindo o 400 do Flask)
                 const errorMessage = err.response.data?.message || `Erro do Servidor (${err.response.status}).`;
                 return { data: null, error: errorMessage };
             }

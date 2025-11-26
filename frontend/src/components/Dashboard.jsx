@@ -27,6 +27,7 @@ import { useAuth } from '../AuthContext';
 import { useState, useEffect, useCallback } from 'react';
 
 function Dashboard() {
+    // Nota: O erro (error: globalError) não está a ser usado no Dashboard, apenas para o protectedFetch
     const { logout, token, protectedFetch, error: globalError } = useAuth(); 
     
     const [machines, setMachines] = useState([]);
@@ -47,6 +48,8 @@ function Dashboard() {
 
     // Função de fetch que lista as máquinas (mantida)
     const fetchMachines = useCallback(async () => {
+        // Usar o token que está no estado do AuthContext
+        // Embora o AuthContext faça a verificação, é uma boa prática verificar localmente
         if (!token) {
             setIsLoadingData(false);
             return;
@@ -57,12 +60,14 @@ function Dashboard() {
 
         console.log("INÍCIO FETCH: A chamar /admin/maquinas..."); 
         
+        // protectedFetch('/admin/maquinas') funciona com GET por defeito
         const { data, error: fetchError } = await protectedFetch('/admin/maquinas');
         
         if (data && data.maquinas) {
             setMachines(data.maquinas);
             console.log("SUCESSO. Máquinas carregadas:", data.maquinas.length);
         } else if (fetchError) {
+            // O AuthContext já trata de erros 401 e erros de rede
             setFetchErrorMessage(`Falha ao carregar máquinas: ${fetchError}`);
         } else if (data && !data.maquinas) {
             setFetchErrorMessage("Resposta do servidor inválida (chave 'maquinas' ausente).");
@@ -70,11 +75,14 @@ function Dashboard() {
         }
         
         setIsLoadingData(false);
-    }, [token, protectedFetch]);
+    }, [token, protectedFetch]); // Dependências do useCallback
 
     useEffect(() => {
-        fetchMachines();
-    }, [fetchMachines]); 
+        // Se houver token, carrega as máquinas
+        if (token) {
+            fetchMachines();
+        }
+    }, [token, fetchMachines]); // Incluir token para garantir o re-fetch após login
 
     // --- LÓGICA DE CRIAÇÃO ---
 
@@ -93,11 +101,12 @@ function Dashboard() {
         setIsCreating(true);
         setCreateMessage({ type: null, text: '' });
 
-        // Chama o endpoint POST /admin/maquinas
+        // 🛑 CORREÇÃO AQUI 🛑
+        // 1. Usar 'data' em vez de 'body' para o Axios
+        // 2. O AuthContext agora gere o Content-Type: application/json quando há dados
         const { data, error: createError } = await protectedFetch('/admin/maquinas', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newMachineData)
+            data: newMachineData // Axios usa 'data' para o corpo (que será serializado para JSON)
         });
 
         setIsCreating(false);
