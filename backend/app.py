@@ -31,23 +31,6 @@ EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 ####  ROTAS  ####
 #################
 
-# ROTA DE DIAGNÓSTICO DE URLS (NOVA)
-@app.route('/debug/urls', methods=['GET'])
-def list_routes():
-    """Lista todas as rotas registadas no Flask para debug."""
-    output = []
-    for rule in app.url_map.iter_rules():
-        # Excluir rotas de debug e estáticas
-        if rule.endpoint not in ('static', 'list_routes'):
-            methods = ','.join(rule.methods)
-            output.append({
-                'endpoint': rule.endpoint,
-                'methods': methods,
-                'url': str(rule)
-            })
-    return jsonify({'routes': output})
-
-
 # HOME / INDEX (API para o frontend)
 @app.route('/api/', methods=['GET'])
 def machines_api():

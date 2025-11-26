@@ -17,7 +17,6 @@ import { useAuth } from '../AuthContext';
 import { useState, useEffect, useCallback } from 'react';
 
 function Dashboard() {
-    // 🛑 CORREÇÃO AQUI: Removemos 'setError' e 'setGlobalError'
     // Assumimos que o AuthContext só expõe: logout, token, protectedFetch, isAuthenticated, error (global)
     const { logout, token, protectedFetch, error: globalError } = useAuth(); 
     
@@ -48,7 +47,6 @@ function Dashboard() {
 
         if (data && data.maquinas) {
             setMachines(data.maquinas);
-            // 🛑 PRÓXIMA ETAPA DE DEBUG: Se receberes os dados, o erro 404 está resolvido!
             console.log("DEBUG 4: SUCESSO. Máquinas carregadas:", data.maquinas.length);
         } else if (fetchError) {
             // Este é o log para o 404 persistente
@@ -105,9 +103,9 @@ function Dashboard() {
                                 <TableHead>
                                     <TableRow sx={{ bgcolor: 'primary.main', '& .MuiTableCell-root': { color: 'white', fontWeight: 'bold' } }}>
                                         <TableCell>ID</TableCell>
-                                        <TableCell>Título</TableCell>
-                                        <TableCell>Preço</TableCell>
-                                        <TableCell>Ano</TableCell>
+                                        <TableCell>Nome</TableCell>       {/* 🛑 CORRIGIDO */}
+                                        <TableCell>Descrição</TableCell>  {/* 🛑 CORRIGIDO */}
+                                        <TableCell>Imagens</TableCell>    {/* 🛑 CORRIGIDO */}
                                         <TableCell>Ações</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -118,9 +116,15 @@ function Dashboard() {
                                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                         >
                                             <TableCell component="th" scope="row">{machine.id}</TableCell>
-                                            <TableCell>{machine.titulo_pt}</TableCell>
-                                            <TableCell>{machine.preco_eur} €</TableCell>
-                                            <TableCell>{machine.ano}</TableCell>
+                                            <TableCell>{machine.nome}</TableCell>        {/* 🛑 USAMOS 'nome' */}
+                                            <TableCell>{machine.descricao}</TableCell>   {/* 🛑 USAMOS 'descricao' */}
+                                            <TableCell>
+                                                {/* Visualiza o número de imagens (agora a chave é 'imagens' e é um array) */}
+                                                {machine.imagens && machine.imagens.length > 0
+                                                    ? `${machine.imagens.length} fotos`
+                                                    : 'Nenhuma'
+                                                }
+                                            </TableCell>
                                             <TableCell>
                                                 <Button size="small" variant="outlined" sx={{ mr: 1 }}>Editar</Button>
                                                 <Button size="small" variant="outlined" color="error">Eliminar</Button>

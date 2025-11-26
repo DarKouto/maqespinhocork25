@@ -1,33 +1,26 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
-
-# IMPORTAÇÕES DO REFACTOR
-from .models import Maquinas
+from .models import Maquinas, Imagens # 🛑 Garante que 'Imagens' está importado
 from .extensions import db 
 
-# Definição do Blueprint com o prefixo /api/admin
-# 🛑 ATENÇÃO: A URL COMPLETA TEM DE SER /api/admin/ 🛑
+# O prefixo é /api/admin. A rota fica /api/admin/maquinas
 crud_bp = Blueprint('crud_bp', __name__, url_prefix='/api/admin')
 
-# OBTER TODAS AS MÁQUINAS (CRUD - READ)
-# URL FINAL: /api/admin/maquinas
 @crud_bp.route('/maquinas', methods=['GET']) 
 @jwt_required()
 def get_all_maquinas():
     maquinas_db = Maquinas.query.all()
     lista_maquinas = []
-    
-    # 🛑 ATENÇÃO: Aqui temos de usar a estrutura esperada pelo Dashboard.jsx
     for maquina in maquinas_db:
+        # Busca todas as URLs de imagem relacionadas
+        imagens_urls = [img.url_imagem for img in maquina.imagens]
+        
         lista_maquinas.append({
             'id': maquina.id,
-            'titulo_pt': maquina.nome, # Mapeia nome para titulo_pt
+            'nome': maquina.nome, # 🛑 CORRIGIDO: Agora usa a chave 'nome'
             'descricao': maquina.descricao,
-            'preco_eur': 'N/A', 
-            'ano': 'N/A',       
+            'imagens': imagens_urls # 🛑 NOVO: Inclui a lista de URLs de imagens
         })
-    
-    # 🛑 ATENÇÃO: TEM DE DEVOLVER NA CHAVE 'maquinas' 🛑
     return jsonify({
         'maquinas': lista_maquinas
     }), 200
@@ -77,6 +70,11 @@ def delete_maquina(maquina_id):
     if not maquina:
         return jsonify({"error": "Máquina não encontrada"}), 404
 
+    # 🛑 NOTA: Se apagares uma máquina, o Flask-SQLAlchemy pode precisar de instrução
+    # para apagar primeiro as imagens associadas (ondelete='CASCADE' no modelo Imagens)
+    # Por enquanto, mantemos simples, mas terás de garantir que as imagens são apagadas
+    # antes da máquina, se não tiveres 'CASCADE' configurado.
+    
     db.session.delete(maquina)
     db.session.commit()
     return jsonify({"message": f"Máquina {maquina_id} apagada com sucesso!"}), 200
