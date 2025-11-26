@@ -21,30 +21,41 @@ import {
     DialogActions,
     IconButton
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close'; // Ícone para fechar
-import AddIcon from '@mui/icons-material/Add'; // Ícone para adicionar
-import DeleteIcon from '@mui/icons-material/Delete'; // Ícone para eliminar
+import CloseIcon from '@mui/icons-material/Close'; 
+import AddIcon from '@mui/icons-material/Add'; 
+import DeleteIcon from '@mui/icons-material/Delete'; 
+import EditIcon from '@mui/icons-material/Edit'; // Ícone para editar
 import { useAuth } from '../AuthContext';
 import { useState, useEffect, useCallback } from 'react';
 
+// Estado inicial para uma máquina vazia
+const initialMachineState = {
+    id: null,
+    nome: '',
+    descricao: ''
+};
+
 function Dashboard() {
-    // Nota: O erro (error: globalError) não está a ser usado no Dashboard, apenas para o protectedFetch
     const { logout, token, protectedFetch, error: globalError } = useAuth(); 
     
     const [machines, setMachines] = useState([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [fetchErrorMessage, setFetchErrorMessage] = useState(null); 
     
-    // --- ESTADOS PARA O MODAL DE ADIÇÃO ---
+    // --- ESTADOS PARA O MODAL DE ADIÇÃO (POST) ---
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [newMachineData, setNewMachineData] = useState({
-        nome: '',
-        descricao: ''
-    });
+    const [newMachineData, setNewMachineData] = useState(initialMachineState);
     const [isCreating, setIsCreating] = useState(false);
     const [createMessage, setCreateMessage] = useState({ type: null, text: '' });
     
-    // --- NOVOS ESTADOS PARA O MODAL DE ELIMINAÇÃO ---
+    // --- NOVOS ESTADOS PARA O MODAL DE EDIÇÃO (PUT) ---
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [machineToEditData, setMachineToEditData] = useState(initialMachineState);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [editMessage, setEditMessage] = useState({ type: null, text: '' });
+    // --------------------------------------------------
+
+    // --- ESTADOS PARA O MODAL DE ELIMINAÇÃO (DELETE) ---
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [machineToDeleteId, setMachineToDeleteId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -53,7 +64,7 @@ function Dashboard() {
 
     const displayToken = token ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}` : 'Nenhum token';
 
-    // Função de fetch que lista as máquinas (mantida)
+    // Função para buscar a lista de máquinas (mantida)
     const fetchMachines = useCallback(async () => {
         if (!token) {
             setIsLoadingData(false);
@@ -63,13 +74,10 @@ function Dashboard() {
         setIsLoadingData(true);
         setFetchErrorMessage(null);
 
-        console.log("INÍCIO FETCH: A chamar /admin/maquinas..."); 
-        
         const { data, error: fetchError } = await protectedFetch('/admin/maquinas');
         
         if (data && data.maquinas) {
             setMachines(data.maquinas);
-            console.log("SUCESSO. Máquinas carregadas:", data.maquinas.length);
         } else if (fetchError) {
             setFetchErrorMessage(`Falha ao carregar máquinas: ${fetchError}`);
         } else if (data && !data.maquinas) {
@@ -88,9 +96,13 @@ function Dashboard() {
 
     // --- LÓGICA DE CRIAÇÃO (MANTIDA) ---
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e, type = 'add') => {
         const { name, value } = e.target;
-        setNewMachineData(prev => ({ ...prev, [name]: value }));
+        if (type === 'add') {
+            setNewMachineData(prev => ({ ...prev, [name]: value }));
+        } else if (type === 'edit') {
+            setMachineToEditData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleAddMachine = async () => {
@@ -104,14 +116,14 @@ function Dashboard() {
 
         const { data, error: createError } = await protectedFetch('/admin/maquinas', {
             method: 'POST',
-            data: newMachineData // Usa 'data' para Axios
+            data: newMachineData
         });
 
         setIsCreating(false);
 
         if (data && data.message) {
             setCreateMessage({ type: 'success', text: data.message });
-            setNewMachineData({ nome: '', descricao: '' }); 
+            setNewMachineData(initialMachineState); 
             fetchMachines(); 
             
             setTimeout(() => {
@@ -126,7 +138,7 @@ function Dashboard() {
         }
     };
 
-    // --- LÓGICA DE ELIMINAÇÃO (NOVA) ---
+    // --- LÓGICA DE ELIMINAÇÃO (MANTIDA) ---
 
     const openDeleteDialog = (machineId) => {
         setMachineToDeleteId(machineId);
@@ -146,22 +158,18 @@ function Dashboard() {
         setIsDeleting(true);
         setDeleteMessage({ type: null, text: '' });
 
-        // Chama o endpoint DELETE: /admin/maquinas/<id>
         const endpoint = `/admin/maquinas/${machineToDeleteId}`;
 
         const { data, error: deleteError } = await protectedFetch(endpoint, {
             method: 'DELETE',
-            // O corpo não é necessário para o DELETE, mas podemos enviar um objeto vazio
-            // data: {}
         });
 
         setIsDeleting(false);
 
         if (data && data.message) {
             setDeleteMessage({ type: 'success', text: data.message });
-            fetchMachines(); // Recarregar a lista
+            fetchMachines(); 
             
-            // Fechar o modal após um pequeno atraso
             setTimeout(() => {
                 closeDeleteDialog();
             }, 1500); 
@@ -170,6 +178,58 @@ function Dashboard() {
             setDeleteMessage({ type: 'error', text: `Erro ao eliminar máquina: ${deleteError}` });
         } else {
             setDeleteMessage({ type: 'error', text: 'Erro desconhecido ao eliminar máquina.' });
+        }
+    };
+
+    // --- LÓGICA DE EDIÇÃO (NOVA) ---
+
+    const openEditDialog = (machine) => {
+        // Pré-preencher o estado de edição com os dados da máquina selecionada
+        setMachineToEditData(machine);
+        setEditMessage({ type: null, text: '' });
+        setIsEditModalOpen(true);
+    };
+
+    const closeEditDialog = () => {
+        setIsEditModalOpen(false);
+        setMachineToEditData(initialMachineState);
+        setEditMessage({ type: null, text: '' });
+    };
+
+    const handleEditMachine = async () => {
+        const { id, nome, descricao } = machineToEditData;
+        
+        // Validação mínima
+        if (!nome || !descricao) {
+            setEditMessage({ type: 'error', text: 'Nome e Descrição são obrigatórios.' });
+            return;
+        }
+
+        setIsUpdating(true);
+        setEditMessage({ type: null, text: '' });
+        
+        // Envia PUT para /admin/maquinas/<id> com os dados atualizados
+        const endpoint = `/admin/maquinas/${id}`;
+        
+        const { data, error: updateError } = await protectedFetch(endpoint, {
+            method: 'PUT',
+            data: { nome, descricao } // Envia apenas nome e descrição
+        });
+
+        setIsUpdating(false);
+
+        if (data && data.message) {
+            setEditMessage({ type: 'success', text: data.message });
+            fetchMachines(); // Recarregar a lista
+            
+            setTimeout(() => {
+                closeEditDialog();
+            }, 1500); 
+
+        } else if (updateError) {
+            setEditMessage({ type: 'error', text: `Erro ao atualizar máquina: ${updateError}` });
+        } else {
+            setEditMessage({ type: 'error', text: 'Erro desconhecido ao atualizar máquina.' });
         }
     };
 
@@ -191,8 +251,8 @@ function Dashboard() {
                     color="primary" 
                     startIcon={<AddIcon />} 
                     onClick={() => {
-                        setNewMachineData({ nome: '', descricao: '' }); // Reset ao abrir
-                        setCreateMessage({ type: null, text: '' }); // Limpar mensagens
+                        setNewMachineData(initialMachineState);
+                        setCreateMessage({ type: null, text: '' });
                         setIsAddModalOpen(true);
                     }}
                     sx={{ mb: 3 }}
@@ -241,7 +301,7 @@ function Dashboard() {
                                         >
                                             <TableCell component="th" scope="row">{machine.id}</TableCell>
                                             <TableCell>{machine.nome}</TableCell> 
-                                            <TableCell>{machine.descricao.substring(0, 50)}...</TableCell> {/* Limita a descrição */}
+                                            <TableCell>{machine.descricao.substring(0, 50)}...</TableCell> 
                                             <TableCell>
                                                 {machine.imagens && machine.imagens.length > 0
                                                     ? `${machine.imagens.length} fotos`
@@ -249,13 +309,22 @@ function Dashboard() {
                                                 }
                                             </TableCell>
                                             <TableCell>
-                                                <Button size="small" variant="outlined" sx={{ mr: 1 }}>Editar</Button>
+                                                {/* Botão de Edição (NOVO) */}
+                                                <Button 
+                                                    size="small" 
+                                                    variant="outlined" 
+                                                    startIcon={<EditIcon sx={{ fontSize: '1rem' }} />}
+                                                    onClick={() => openEditDialog(machine)} 
+                                                    sx={{ mr: 1 }}
+                                                >
+                                                    Editar
+                                                </Button>
                                                 <Button 
                                                     size="small" 
                                                     variant="contained" 
                                                     color="error"
                                                     startIcon={<DeleteIcon sx={{ fontSize: '1rem' }} />}
-                                                    onClick={() => openDeleteDialog(machine.id)} // NOVO
+                                                    onClick={() => openDeleteDialog(machine.id)} 
                                                 >
                                                     Eliminar
                                                 </Button>
@@ -288,7 +357,7 @@ function Dashboard() {
                 </Button>
             </Box>
 
-            {/* --- MODAL PARA ADICIONAR NOVA MÁQUINA (MANTIDO) --- */}
+            {/* --- MODAL PARA ADICIONAR NOVA MÁQUINA (POST) --- */}
             <Dialog 
                 open={isAddModalOpen} 
                 onClose={() => setIsAddModalOpen(false)}
@@ -326,7 +395,7 @@ function Dashboard() {
                         fullWidth
                         variant="outlined"
                         value={newMachineData.nome}
-                        onChange={handleInputChange}
+                        onChange={(e) => handleInputChange(e, 'add')} // Tipo 'add'
                         required
                         sx={{ mb: 2 }}
                     />
@@ -341,7 +410,7 @@ function Dashboard() {
                         rows={4}
                         variant="outlined"
                         value={newMachineData.descricao}
-                        onChange={handleInputChange}
+                        onChange={(e) => handleInputChange(e, 'add')} // Tipo 'add'
                         required
                     />
                 </DialogContent>
@@ -365,7 +434,85 @@ function Dashboard() {
             </Dialog>
             {/* ------------------------------------------- */}
 
-            {/* --- NOVO: MODAL DE CONFIRMAÇÃO DE ELIMINAÇÃO --- */}
+            {/* --- NOVO: MODAL PARA EDITAR MÁQUINA (PUT) --- */}
+            <Dialog 
+                open={isEditModalOpen} 
+                onClose={closeEditDialog}
+                fullWidth
+                maxWidth="sm"
+            >
+                <DialogTitle>
+                    Editar Máquina ID: {machineToEditData.id}
+                    <IconButton
+                        aria-label="fechar"
+                        onClick={closeEditDialog}
+                        sx={{
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                            color: (theme) => theme.palette.grey[500],
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent dividers>
+                    {editMessage.text && (
+                        <Alert severity={editMessage.type} sx={{ mb: 2 }}>
+                            {editMessage.text}
+                        </Alert>
+                    )}
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="edit-nome"
+                        name="nome"
+                        label="Nome da Máquina"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={machineToEditData.nome}
+                        onChange={(e) => handleInputChange(e, 'edit')} // Tipo 'edit'
+                        required
+                        sx={{ mb: 2 }}
+                    />
+                    <TextField
+                        margin="dense"
+                        id="edit-descricao"
+                        name="descricao"
+                        label="Descrição da Máquina"
+                        type="text"
+                        fullWidth
+                        multiline
+                        rows={4}
+                        variant="outlined"
+                        value={machineToEditData.descricao}
+                        onChange={(e) => handleInputChange(e, 'edit')} // Tipo 'edit'
+                        required
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button 
+                        onClick={closeEditDialog}
+                        color="secondary"
+                        disabled={isUpdating}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button 
+                        onClick={handleEditMachine} 
+                        color="primary" 
+                        variant="contained"
+                        disabled={isUpdating}
+                        startIcon={isUpdating ? <CircularProgress size={20} color="inherit" /> : <EditIcon />}
+                    >
+                        {isUpdating ? 'A Atualizar...' : 'Atualizar Máquina'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            {/* ------------------------------------------- */}
+
+            {/* --- MODAL DE CONFIRMAÇÃO DE ELIMINAÇÃO (MANTIDO) --- */}
             <Dialog 
                 open={isDeleteModalOpen} 
                 onClose={closeDeleteDialog}
