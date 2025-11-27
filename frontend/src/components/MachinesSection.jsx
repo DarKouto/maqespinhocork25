@@ -12,23 +12,11 @@ const removeAccents = (str) => {
 };
 
 function MachinesSection({ searchTerm, setSearchTerm }) { 
-  // ESTADOS PARA DADOS DA API E CONTROLO DE CARREGAMENTO
+
   const [apiMachines, setApiMachines] = useState([]);
   const [isLoading, setIsLoading] = useState(true); 
   const [error, setError] = useState(null); 
   
-  // DADOS HARDCODE (ID's NEGATIVOS para evitar conflito com a API)
-  const machines = [
-    {
-      id: -6, 
-      name: 'Marcadeira a Tinta',
-      description: 'Marcadeira de Rolhas completa a Tinta',
-      imageUrl: f1, // Usa o import local
-      images: [f1],
-    },
-  ];
-  
-  // FETCH DE DADOS DA API
   useEffect(() => {
     const API_URL = '/api/'; 
 
@@ -42,17 +30,15 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
       .then(data => {
         
         const machinesWithImages = data.map(m => {
-            // 🚨 ALTERAÇÃO CRÍTICA: Se a máquina tiver imagens, usa a primeira URL do Cloudinary.
             const imageUrl = (m.imagens && m.imagens.length > 0) 
                              ? m.imagens[0] 
                              : PLACEHOLDER_URL;
-
             return {
                 id: Number(m.id), 
                 name: m.nome, 
                 description: m.descricao, 
-                imageUrl: imageUrl, // URL do Cloudinary (ou placeholder)
-                images: m.imagens || [], // Array completo de URLs
+                imageUrl: imageUrl,
+                images: m.imagens || [],
             };
         });
         
@@ -66,11 +52,6 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
       });
   }, []); 
 
-
-  // COMBINAÇÃO: Hardcode + API
-  const allMachines = [...machines, ...apiMachines]; 
-
-  
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState(null);
 
@@ -85,27 +66,20 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
     setSearchTerm('');
   };
 
-  // DIAGNÓSTICO: DESATIVA O FILTRO TEMPORARIAMENTE
-  const filteredMachines = allMachines.filter(machine => { 
-    // Filtro de segurança (Objeto e Nome não podem ser nulos)
+  const filteredMachines = apiMachines.filter(machine => { 
     if (!machine || !machine.name) {
         return false;
     }
 
-    // Definir a descrição como "" se for nula/undefined
     const description = machine.description || "";
-    
     const searchTermNormalized = removeAccents(searchTerm.toLowerCase());
     const nameNormalized = removeAccents(machine.name.toLowerCase());
-    
-    // USAR a variável 'description' corrigida
     const descriptionNormalized = removeAccents(description.toLowerCase()); 
     
     return nameNormalized.includes(searchTermNormalized) || descriptionNormalized.includes(searchTermNormalized);
 });
   
-  // FEEDBACK DE CARREGAMENTO E ERRO
-  if (isLoading && allMachines.length === 0) {
+  if (isLoading && apiMachines.length === 0) {
       return (
         <Container maxWidth="lg">
           <Typography variant="h6" align="center" sx={{ mt: 6 }}>
@@ -124,7 +98,6 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
         </Container>
       );
     }
-
 
   return (
     <Container maxWidth="lg">
@@ -157,7 +130,6 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
                         aspectRatio: '1/1',
                         width: '100%',
                       }}
-                      // Usa machine.imageUrl, que será o import local (para hardcoded) ou o URL do Cloudinary (para API)
                       image={machine.imageUrl}
                       alt={machine.name}
                     />
