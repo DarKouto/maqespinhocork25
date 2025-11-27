@@ -100,10 +100,16 @@ def upload_image(maquina_id):
             upload_result = cloudinary.uploader.upload(
                 file, 
                 folder=f"maquinas/{maquina_id}", 
-                public_id=str(uuid.uuid4()), # Nome único
-                # Optional: Se quiseres transformar ou otimizar automaticamente
-                # Por exemplo, fazer resize para 800px de largura máxima
-                # transformation=[{'width': 800, 'crop': "limit"}]
+                public_id=str(uuid.uuid4()),
+                transformation=[
+                    {
+                        'width': 1000, 
+                        'crop': "limit", # Mantém o aspeto e limita a dimensão máxima
+                        'quality': "auto:best", # Otimiza a qualidade
+                        'fetch_format': "auto" # Converte para WebP/AVIF se o browser suportar
+                    }
+                ]
+                
             )
             
             # Extrair o URL seguro e público do resultado
