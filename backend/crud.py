@@ -5,6 +5,7 @@ from .extensions import db
 from werkzeug.utils import secure_filename 
 import os
 import uuid 
+import cloudinary.uploader # 🚨 IMPORTANTE: Importar o uploader
 
 # O prefixo é /api/admin. A rota fica /api/admin/maquinas
 crud_bp = Blueprint('crud_bp', __name__, url_prefix='/api/admin')
@@ -73,7 +74,7 @@ def get_all_maquinas():
     }), 200
 
 # -------------------------------------------------------------
-# 🟢 ROTA DE UPLOAD (Com DEBUG CRÍTICO)
+# 🟢 ROTA DE UPLOAD (AGORA COM CLOUDINARY)
 # -------------------------------------------------------------
 @crud_bp.route('/maquinas/<int:maquina_id>/upload-imagem', methods=['POST'])
 @jwt_required()
@@ -82,47 +83,52 @@ def upload_image(maquina_id):
     if not maquina:
         return jsonify({"error": "Máquina não encontrada para associar a imagem"}), 404
 
-    # --- DEBUG CRÍTICO ---
-    # Se esta linha for impressa, significa que o Flask não encontrou o ficheiro
     if 'file' not in request.files:
         print("--- DEBUG FLASK: ERRO 400 - O campo 'file' está ausente em request.files ---")
         return jsonify({"error": "Nenhum ficheiro encontrado no campo 'file'"}), 400
-    # ---------------------
     
     file = request.files['file']
     
-    # Se o utilizador não selecionar um ficheiro (o que é improvável neste ponto)
     if file.filename == '':
         return jsonify({"error": "Nenhum ficheiro selecionado"}), 400
     
     if file and allowed_file(file.filename):
         try:
-            # 1. Preparar o nome e o caminho
-            filename_base = secure_filename(file.filename)
-            unique_filename = str(uuid.uuid4()) + '.' + filename_base.rsplit('.', 1)[1].lower()
+            # 1. FAZER O UPLOAD PARA O CLOUDINARY (Substitui o file.save() local)
+            # Usamos o ID da máquina para criar uma pasta de organização no Cloudinary.
+            # O public_id garante um nome único.
+            upload_result = cloudinary.uploader.upload(
+                file, 
+                folder=f"maquinas/{maquina_id}", 
+                public_id=str(uuid.uuid4()), # Nome único
+                # Optional: Se quiseres transformar ou otimizar automaticamente
+                # Por exemplo, fazer resize para 800px de largura máxima
+                # transformation=[{'width': 800, 'crop': "limit"}]
+            )
             
-            upload_path = os.path.join(current_app.root_path, current_app.config.get('UPLOAD_FOLDER_NAME', 'uploads'))
+            # Extrair o URL seguro e público do resultado
+            public_url = upload_result.get('secure_url')
             
-            # 2. Guardar o ficheiro no sistema local (⚠️ Será perdido no Vercel)
-            file_save_path = os.path.join(upload_path, unique_filename)
-            file.save(file_save_path)
-            
-            # 3. Guardar o caminho na base de dados
-            relative_url = f"/{current_app.config.get('UPLOAD_FOLDER_NAME', 'uploads')}/{unique_filename}"
-            
-            nova_imagem = Imagens(url_imagem=relative_url, maquina_id=maquina_id)
+            if not public_url:
+                 # Se o upload falhar, o public_url será None
+                 return jsonify({"error": "Falha ao obter URL público do Cloudinary. Credenciais ou erro de rede?"}), 500
+
+            # 2. Guardar o URL público (e não o caminho local) na base de dados NEON
+            nova_imagem = Imagens(url_imagem=public_url, maquina_id=maquina_id)
             db.session.add(nova_imagem)
             db.session.commit()
-
+            
+            # 3. Sucesso! Devolve o URL permanente.
             return jsonify({
-                "message": "Imagem carregada e associada com sucesso!",
-                "url": relative_url
+                "message": "Imagem carregada e associada com sucesso ao Cloudinary!",
+                "url": public_url 
             }), 201
             
         except Exception as e:
             db.session.rollback()
             print(f"DEBUG FLASK: Erro no upload ou na DB: {e}")
-            return jsonify({"error": f"Erro interno do servidor durante o upload: {e}"}), 500
+            # Devolve sempre JSON para o frontend poder tratar a resposta
+            return jsonify({"error": f"Erro interno do servidor: {str(e)}"}), 500
 
     return jsonify({"error": "Tipo de ficheiro não permitido"}), 400
 
@@ -155,6 +161,10 @@ def delete_maquina(maquina_id):
     maquina = Maquinas.query.get(maquina_id)
     if not maquina:
         return jsonify({"error": "Máquina não encontrada"}), 404
+    
+    # Adicional: Poderias adicionar lógica para apagar as imagens associadas
+    # do Cloudinary aqui antes de apagar a máquina da DB.
+    # Exemplo: Imagens.query.filter_by(maquina_id=maquina_id).delete()
     
     db.session.delete(maquina)
     db.session.commit()

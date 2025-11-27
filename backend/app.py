@@ -5,6 +5,8 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_cors import CORS
 import re
 from werkzeug.security import check_password_hash
+import os # 🚨 NOVO: Para ler variáveis de ambiente
+import cloudinary # 🚨 NOVO: Para configurar o Cloudinary
 
 # IMPORTS DO REFACTOR
 from .extensions import db
@@ -16,7 +18,24 @@ from .crud import crud_bp
 # CONFIGS
 app = Flask(__name__)
 CORS(app)
+# Carrega as configurações (incluindo as DB e JWT)
 app.config.from_object(Config)
+
+# -------------------------------------------------------------
+# 🚨 NOVO: CONFIGURAÇÃO GLOBAL DO CLOUDINARY
+# Lê a variável de ambiente CLOUDINARY_URL que contém todas as credenciais
+# -------------------------------------------------------------
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+
+if CLOUDINARY_URL:
+    # O método 'config' do Cloudinary consegue analisar o URL completo.
+    cloudinary.config(
+        secure=True # Usa HTTPS
+    )
+    print("DEBUG FLASK: Cloudinary configurado usando CLOUDINARY_URL.")
+else:
+    print("DEBUG FLASK: ATENÇÃO! Variável CLOUDINARY_URL não encontrada. O upload de imagens falhará.")
+
 db.init_app(app)
 
 # REGISTO DOS BLUEPRINTS
@@ -119,4 +138,7 @@ def admin_logout():
 
 # INICIAR APP
 if __name__ == '__main__':
+    # Garante que as variáveis de ambiente (incluindo CLOUDINARY_URL) são lidas
+    from dotenv import load_dotenv
+    load_dotenv()
     app.run(debug=True)
