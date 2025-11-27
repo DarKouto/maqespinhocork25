@@ -4,6 +4,7 @@
 
 ![Screen1](https://raw.githubusercontent.com/DarKouto/DarKouto/refs/heads/main/screen1.jpg)
 
+---
 New MaqEspinhoCork web application, built from scratch, using:
  - React.JS
  - Material UI
@@ -13,6 +14,7 @@ New MaqEspinhoCork web application, built from scratch, using:
  - Neon
  - Cloudinary
  - Vercel
+---
 
 ![Screen2](https://raw.githubusercontent.com/DarKouto/DarKouto/refs/heads/main/screen2.jpg)
 
