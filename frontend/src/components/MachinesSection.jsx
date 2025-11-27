@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button, Box } from '@mui/material';
 import MachineDetailsDialog from './MachineDetailsDialog';
-// 🚨 MANTIDOS: Os imports locais
-import f1 from '../images/f1.jpeg';
-
 
 const PLACEHOLDER_URL = 'https://via.placeholder.com/200/90A4AE/FFFFFF?text=Sem+Imagem';
 
