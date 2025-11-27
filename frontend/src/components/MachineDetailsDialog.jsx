@@ -115,13 +115,7 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
           )}
         </Box>
         
-        {/* Indicador de Imagem Atual (ex: 1/3) */}
-        {machineImages.length > 1 && (
-            <Typography variant="caption" color="text.secondary" align="center" display="block" sx={{ mt: 1 }}>
-                {`Imagem ${currentImageIndex + 1} de ${machineImages.length}`}
-            </Typography>
-        )}
-
+        
         <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Typography variant="body1">
             {machine.description}

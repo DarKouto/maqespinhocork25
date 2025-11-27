@@ -25,20 +25,6 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
   // DADOS HARDCODE (ID's NEGATIVOS para evitar conflito com a API)
   const machines = [
     {
-      id: -1, 
-      name: 'Ponçadeira',
-      description: 'Máquina de Ponçar Rolhas.',
-      imageUrl: a1, // Usa o import local
-      images: [a1], // Array para compatibilidade futura com o diálogo
-    },
-    {
-      id: -2, 
-      name: 'Lixadeira / Topejadeira',
-      description: 'Máquina de Topejar Rolhas.',
-      imageUrl: b1, // Usa o import local
-      images: [b1],
-    },
-    {
       id: -3, 
       name: 'Aspirador de Pó',
       description: 'Aspirador de Pó / Dust Collector com duas saídas.',
