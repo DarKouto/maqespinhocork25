@@ -5,8 +5,8 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_cors import CORS
 import re
 from werkzeug.security import check_password_hash
-import os # Para ler variáveis de ambiente
-import cloudinary # Para configurar o Cloudinary
+import os 
+import cloudinary 
 
 # IMPORTS DO REFACTOR
 from .extensions import db
@@ -21,23 +21,16 @@ CORS(app)
 # Carrega as configurações (incluindo as DB e JWT)
 app.config.from_object(Config)
 
-# -------------------------------------------------------------
-# 🚨 CONFIGURAÇÃO GLOBAL DO CLOUDINARY
-# Lê a variável de ambiente CLOUDINARY_URL
-# -------------------------------------------------------------
+# CONFIGURAÇÃO GLOBAL DO CLOUDINARY
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
 
 if CLOUDINARY_URL:
-    # O método 'config' do Cloudinary consegue analisar o URL completo se estiver
-    # definido como variável de ambiente no formato 'cloudinary://<api_key>:<api_secret>@<cloud_name>'
     cloudinary.config(
         secure=True # Usa HTTPS
     )
     print("DEBUG FLASK: Cloudinary configurado usando CLOUDINARY_URL.")
 else:
-    # Esta mensagem aparece na consola do Vercel se a variável estiver em falta.
     print("DEBUG FLASK: ATENÇÃO! Variável CLOUDINARY_URL não encontrada. O upload de imagens falhará.")
-
 
 db.init_app(app)
 
@@ -56,20 +49,19 @@ EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 # HOME / INDEX (API para o frontend)
 @app.route('/api/', methods=['GET'])
 def machines_api():
-    """Retorna a lista de máquinas para o frontend (página inicial)."""
+    """Retorna a lista de máquinas para o frontend (página inicial) com URLs de imagem."""
     maquinas = Maquinas.query.all()
     lista_maquinas = []
     for maquina in maquinas:
-        # Nota: O Cloudinary está configurado para otimizar URLs. 
-        # Esta rota deve ser atualizada para incluir a URL da imagem.
-        imagens = maquina.imagens # Assumindo que a relação está carregada
-        image_url = imagens[0].url_imagem if imagens else None
-
+        # 🚨 ALTERAÇÃO CRÍTICA: Incluir as URLs das imagens da relação Maquinas.imagens
+        # Assume-se que 'maquina.imagens' é uma relação que contém objetos com o campo 'url_imagem'
+        imagens_urls = [img.url_imagem for img in maquina.imagens]
+        
         lista_maquinas.append({
             'id': maquina.id,
             'nome': maquina.nome,
             'descricao': maquina.descricao,
-            'imageUrl': image_url # Adiciona a primeira imagem
+            'imagens': imagens_urls # <-- Agora o frontend pode aceder a isto!
         })
     return jsonify(lista_maquinas)
 
@@ -77,6 +69,7 @@ def machines_api():
 @app.route('/contactos', methods=['GET', 'POST'])
 def contactos():
     """Lida com o formulário de contacto e envia o e-mail."""
+    # (Resto da função contactos...)
     if request.method == 'POST':
         if not request.is_json:
             return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
@@ -146,4 +139,7 @@ def admin_logout():
 
 # INICIAR APP
 if __name__ == '__main__':
+    # Garante que as variáveis de ambiente (incluindo CLOUDINARY_URL) são lidas
+    from dotenv import load_dotenv
+    load_dotenv()
     app.run(debug=True)
