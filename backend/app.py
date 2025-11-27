@@ -146,7 +146,4 @@ def admin_logout():
 
 # INICIAR APP
 if __name__ == '__main__':
-    # Usado apenas para desenvolvimento local.
-    from dotenv import load_dotenv
-    load_dotenv()
     app.run(debug=True)
