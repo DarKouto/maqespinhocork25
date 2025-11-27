@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button, Box } from '@mui/material';
 import MachineDetailsDialog from './MachineDetailsDialog';
+// 🚨 MANTIDOS: Os imports locais
 import a1 from '../images/a1.jpeg';
 import b1 from '../images/b1.jpeg';
 import c1 from '../images/c1.jpeg';
@@ -8,6 +9,8 @@ import d1 from '../images/d1.jpeg';
 import e1 from '../images/e1.jpeg';
 import f1 from '../images/f1.jpeg';
 
+
+const PLACEHOLDER_URL = 'https://via.placeholder.com/200/90A4AE/FFFFFF?text=Sem+Imagem';
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
@@ -25,37 +28,43 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
       id: -1, 
       name: 'Ponçadeira',
       description: 'Máquina de Ponçar Rolhas.',
-      imageUrl: a1,
+      imageUrl: a1, // Usa o import local
+      images: [a1], // Array para compatibilidade futura com o diálogo
     },
     {
       id: -2, 
       name: 'Lixadeira / Topejadeira',
       description: 'Máquina de Topejar Rolhas.',
-      imageUrl: b1,
+      imageUrl: b1, // Usa o import local
+      images: [b1],
     },
     {
       id: -3, 
       name: 'Aspirador de Pó',
       description: 'Aspirador de Pó / Dust Collector com duas saídas.',
-      imageUrl: c1,
+      imageUrl: c1, // Usa o import local
+      images: [c1],
     },
     {
       id: -4, 
       name: 'Máquina de Contar Rolhas',
       description: 'Máquina de Contar Rolhas Automática.',
-      imageUrl: d1,
+      imageUrl: d1, // Usa o import local
+      images: [d1],
     },
     {
       id: -5, 
       name: 'Alimentador Automático / "Girafa',
       description: 'Alimentador Automático / "Girafa. Produto MEC: MaqEspinhoCork',
-      imageUrl: e1,
+      imageUrl: e1, // Usa o import local
+      images: [e1],
     },
     {
       id: -6, 
       name: 'Marcadeira a Tinta',
       description: 'Marcadeira de Rolhas completa a Tinta',
-      imageUrl: f1,
+      imageUrl: f1, // Usa o import local
+      images: [f1],
     },
   ];
   
@@ -71,13 +80,21 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
         return response.json();
       })
       .then(data => {
-        // CORREÇÃO CRUCIAL: Mapeamento de Python (nome/descricao) para JavaScript (name/description)
-        const machinesWithImages = data.map(m => ({
-            id: Number(m.id), // Garante que o ID é número
-            name: m.nome, // << MAPEAMENTO CORRIGIDO
-            description: m.descricao, // << MAPEAMENTO CORRIGIDO
-            imageUrl: m.imageUrl || 'https://via.placeholder.com/200?text=Stock+API', // Placeholder
-        }));
+        
+        const machinesWithImages = data.map(m => {
+            // 🚨 ALTERAÇÃO CRÍTICA: Se a máquina tiver imagens, usa a primeira URL do Cloudinary.
+            const imageUrl = (m.imagens && m.imagens.length > 0) 
+                             ? m.imagens[0] 
+                             : PLACEHOLDER_URL;
+
+            return {
+                id: Number(m.id), 
+                name: m.nome, 
+                description: m.descricao, 
+                imageUrl: imageUrl, // URL do Cloudinary (ou placeholder)
+                images: m.imagens || [], // Array completo de URLs
+            };
+        });
         
         setApiMachines(machinesWithImages);
         setIsLoading(false);
@@ -180,6 +197,7 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
                         aspectRatio: '1/1',
                         width: '100%',
                       }}
+                      // Usa machine.imageUrl, que será o import local (para hardcoded) ou o URL do Cloudinary (para API)
                       image={machine.imageUrl}
                       alt={machine.name}
                     />

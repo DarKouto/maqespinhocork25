@@ -5,8 +5,8 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_cors import CORS
 import re
 from werkzeug.security import check_password_hash
-import os # 🚨 NOVO: Para ler variáveis de ambiente
-import cloudinary # 🚨 NOVO: Para configurar o Cloudinary
+import os 
+import cloudinary 
 
 # IMPORTS DO REFACTOR
 from .extensions import db
@@ -21,14 +21,10 @@ CORS(app)
 # Carrega as configurações (incluindo as DB e JWT)
 app.config.from_object(Config)
 
-# -------------------------------------------------------------
-# 🚨 NOVO: CONFIGURAÇÃO GLOBAL DO CLOUDINARY
-# Lê a variável de ambiente CLOUDINARY_URL que contém todas as credenciais
-# -------------------------------------------------------------
+# CONFIGURAÇÃO GLOBAL DO CLOUDINARY
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
 
 if CLOUDINARY_URL:
-    # O método 'config' do Cloudinary consegue analisar o URL completo.
     cloudinary.config(
         secure=True # Usa HTTPS
     )
@@ -53,14 +49,19 @@ EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 # HOME / INDEX (API para o frontend)
 @app.route('/api/', methods=['GET'])
 def machines_api():
-    """Retorna a lista de máquinas para o frontend (página inicial)."""
+    """Retorna a lista de máquinas para o frontend (página inicial) com URLs de imagem."""
     maquinas = Maquinas.query.all()
     lista_maquinas = []
     for maquina in maquinas:
+        # 🚨 ALTERAÇÃO CRÍTICA: Incluir as URLs das imagens da relação Maquinas.imagens
+        # Assume-se que 'maquina.imagens' é uma relação que contém objetos com o campo 'url_imagem'
+        imagens_urls = [img.url_imagem for img in maquina.imagens]
+        
         lista_maquinas.append({
             'id': maquina.id,
             'nome': maquina.nome,
             'descricao': maquina.descricao,
+            'imagens': imagens_urls # <-- Agora o frontend pode aceder a isto!
         })
     return jsonify(lista_maquinas)
 
