@@ -1,7 +1,6 @@
 # MaqEspinhoCork 2025
 
-## Version 1.0 deployed:
-- https://www.maqespinhocork.com/
+## Version 1.0 deployed: https://www.maqespinhocork.com/
 
 ![Screen1](https://raw.githubusercontent.com/DarKouto/DarKouto/refs/heads/main/screen1.jpg)
 
