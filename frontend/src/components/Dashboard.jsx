@@ -601,9 +601,6 @@ function Dashboard() {
                     <Typography variant="h6" component="h3" sx={{ mt: 3, mb: 1 }}>
                         Imagens Existentes ({machineToEditData.imagens ? machineToEditData.imagens.length : 0})
                     </Typography>
-                    <Alert severity="warning" sx={{ mb: 2 }}>
-                        A remoção de imagens existentes ainda não está implementada (deverá ser feita por uma nova API DELETE/imagem).
-                    </Alert>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                         {machineToEditData.imagens && machineToEditData.imagens.map((url, index) => (
                             <img 
