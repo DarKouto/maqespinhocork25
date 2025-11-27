@@ -2,11 +2,6 @@ import { useState, useEffect } from 'react';
 import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions, Button, Box } from '@mui/material';
 import MachineDetailsDialog from './MachineDetailsDialog';
 // 🚨 MANTIDOS: Os imports locais
-import a1 from '../images/a1.jpeg';
-import b1 from '../images/b1.jpeg';
-import c1 from '../images/c1.jpeg';
-import d1 from '../images/d1.jpeg';
-import e1 from '../images/e1.jpeg';
 import f1 from '../images/f1.jpeg';
 
 
