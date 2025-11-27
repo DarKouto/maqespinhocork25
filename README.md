@@ -6,7 +6,8 @@ New MaqEspinhoCork web application, built from scratch, using:
  - Flask
  - PostgreSQL
  - Neon
+ - Cloudinary
  - Vercel
 
-Work in progress
+Version 1.0 deployed:
 https://www.maqespinhocork.com/
