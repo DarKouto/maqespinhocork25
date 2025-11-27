@@ -17,11 +17,11 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
     return null;
   }
 
-  const machineImages = [
-    machine.imageUrl,
-    'https://placehold.co/600x400/a3e635/000000?text=Foto+Detalhes+1',
-    'https://placehold.co/600x400/a3e635/000000?text=Foto+Detalhes+2',
-  ];
+  // 🚨 ALTERAÇÃO CRÍTICA: Usa o array 'images' que agora é populado pela API ou hardcode.
+  // Garante que, se 'images' estiver vazio, pelo menos a imagem principal ('imageUrl') é usada.
+  const machineImages = (machine.images && machine.images.length > 0)
+    ? machine.images
+    : [machine.imageUrl];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -33,11 +33,17 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + machineImages.length) % machineImages.length);
   };
   
+  // Reset do índice ao abrir o diálogo
   useEffect(() => {
     if (open) {
       setCurrentImageIndex(0);
     }
   }, [open]);
+
+  // Se, por algum motivo, o array de imagens estiver vazio (embora não devesse), não renderiza.
+  if (machineImages.length === 0) {
+      return null; 
+  }
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
@@ -55,22 +61,25 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
             justifyContent: 'center',
             p: 1
           }}>
-          <IconButton
-            onClick={handlePrevImage}
-            disabled={machineImages.length <= 1}
-            sx={{
-              position: 'absolute',
-              left: 0,
-              zIndex: 1,
-              color: 'white',
-              backgroundColor: 'rgba(0, 0, 0, 0.4)',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-              },
-            }}
-          >
-            <ArrowBackIosIcon />
-          </IconButton>
+          
+          {/* Botão Anterior - Visível apenas se houver mais de uma imagem */}
+          {machineImages.length > 1 && (
+            <IconButton
+              onClick={handlePrevImage}
+              sx={{
+                position: 'absolute',
+                left: 0,
+                zIndex: 1,
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                },
+              }}
+            >
+              <ArrowBackIosIcon />
+            </IconButton>
+          )}
 
           <Box
             component="img"
@@ -81,30 +90,39 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
               height: 'auto', 
               borderRadius: 1,
               objectFit: 'contain',
-              // CORREÇÃO: Altura responsiva para telemóveis
+              // Altura responsiva para telemóveis
               height: { xs: '30vh', sm: '40vh', md: '50vh' },
             }}
           />
 
-          <IconButton
-            onClick={handleNextImage}
-            disabled={machineImages.length <= 1}
-            sx={{
-              position: 'absolute',
-              right: 0,
-              zIndex: 1,
-              color: 'white',
-              backgroundColor: 'rgba(0, 0, 0, 0.4)',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-              },
-            }}
-          >
-            <ArrowForwardIosIcon />
-          </IconButton>
+          {/* Botão Seguinte - Visível apenas se houver mais de uma imagem */}
+          {machineImages.length > 1 && (
+            <IconButton
+              onClick={handleNextImage}
+              sx={{
+                position: 'absolute',
+                right: 0,
+                zIndex: 1,
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                },
+              }}
+            >
+              <ArrowForwardIosIcon />
+            </IconButton>
+          )}
         </Box>
         
-        <Box sx={{ mt: 2, textAlign: 'center' }}>
+        {/* Indicador de Imagem Atual (ex: 1/3) */}
+        {machineImages.length > 1 && (
+            <Typography variant="caption" color="text.secondary" align="center" display="block" sx={{ mt: 1 }}>
+                {`Imagem ${currentImageIndex + 1} de ${machineImages.length}`}
+            </Typography>
+        )}
+
+        <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Typography variant="body1">
             {machine.description}
           </Typography>
