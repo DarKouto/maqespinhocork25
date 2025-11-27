@@ -25,27 +25,6 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
   // DADOS HARDCODE (ID's NEGATIVOS para evitar conflito com a API)
   const machines = [
     {
-      id: -3, 
-      name: 'Aspirador de Pó',
-      description: 'Aspirador de Pó / Dust Collector com duas saídas.',
-      imageUrl: c1, // Usa o import local
-      images: [c1],
-    },
-    {
-      id: -4, 
-      name: 'Máquina de Contar Rolhas',
-      description: 'Máquina de Contar Rolhas Automática.',
-      imageUrl: d1, // Usa o import local
-      images: [d1],
-    },
-    {
-      id: -5, 
-      name: 'Alimentador Automático / "Girafa',
-      description: 'Alimentador Automático / "Girafa. Produto MEC: MaqEspinhoCork',
-      imageUrl: e1, // Usa o import local
-      images: [e1],
-    },
-    {
       id: -6, 
       name: 'Marcadeira a Tinta',
       description: 'Marcadeira de Rolhas completa a Tinta',
