@@ -12,8 +12,6 @@ import {
     TableRow,
     Paper,
     Alert,
-    
-    // Importações do Material UI para o formulário
     TextField,
     Dialog,
     DialogTitle,
@@ -29,12 +27,11 @@ import ImageUploader from './ImageUploader'; // 🟢 Importar o componente
 import { useAuth } from '../AuthContext';
 import { useState, useEffect, useCallback } from 'react';
 
-// Estado inicial para uma máquina vazia
+
 const initialMachineState = {
     id: null,
     nome: '',
     descricao: '',
-    // As imagens vêm como um array de URLs da API Flask
     imagens: [] 
 };
 
@@ -42,15 +39,12 @@ const initialMachineState = {
 const initialNewMachineState = {
     nome: '',
     descricao: '',
-    // Usamos este ID temporário para saber se o Passo 1 (criação de texto) foi concluído
     temp_maquina_id: null, 
-    // URLs das imagens carregadas nesta sessão, para pré-visualização no modal
     uploaded_image_urls: [] 
 };
 
 
 function Dashboard() {
-    // Assumindo que useAuth fornece 'protectedFetch' e 'token'
     const { logout, token, protectedFetch, error: globalError } = useAuth(); 
     
     const [machines, setMachines] = useState([]);
@@ -279,7 +273,7 @@ function Dashboard() {
                     Dashboard de Máquinas
                 </Typography>
                 <Typography variant="body1" paragraph>
-                    Bem-vindo, Daniel. Podes gerir as tuas máquinas aqui.
+                    Bem-vindo Sr. Engenheiro Jorge. Pode gerir as suas máquinas aqui.
                 </Typography>
                 
                 {/* Botão Adicionar Máquina */}
@@ -390,16 +384,6 @@ function Dashboard() {
                     )}
                 </Box>
                 
-                {/* Debug Token */}
-                <Box sx={{ mt: 4, p: 2, bgcolor: '#f0ffdf', borderRadius: 1, border: '1px solid #c9e4c9' }}>
-                    <Typography variant="subtitle2">
-                        Token JWT Ativo (APENAS DEBUG):
-                    </Typography>
-                    <Typography variant="caption" sx={{ wordBreak: 'break-all' }}>
-                        {displayToken}
-                    </Typography>
-                </Box>
-
                 <Button 
                     variant="contained" 
                     color="secondary" 
