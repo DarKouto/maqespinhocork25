@@ -23,10 +23,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add'; 
 import DeleteIcon from '@mui/icons-material/Delete'; 
 import EditIcon from '@mui/icons-material/Edit'; 
-import ImageUploader from './ImageUploader'; // 🟢 Importar o componente
+import ImageUploader from './ImageUploader';
 import { useAuth } from '../AuthContext';
 import { useState, useEffect, useCallback } from 'react';
-
 
 const initialMachineState = {
     id: null,
@@ -35,14 +34,12 @@ const initialMachineState = {
     imagens: [] 
 };
 
-// Estado inicial para a máquina que estamos a CRIAR (usada no modal de adição)
 const initialNewMachineState = {
     nome: '',
     descricao: '',
     temp_maquina_id: null, 
     uploaded_image_urls: [] 
 };
-
 
 function Dashboard() {
     const { logout, token, protectedFetch, error: globalError } = useAuth(); 
@@ -72,7 +69,6 @@ function Dashboard() {
 
     const displayToken = token ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}` : 'Nenhum token';
 
-    // Função para buscar a lista de máquinas
     const fetchMachines = useCallback(async () => {
         if (!token) {
             setIsLoadingData(false);
@@ -82,7 +78,6 @@ function Dashboard() {
         setIsLoadingData(true);
         setFetchErrorMessage(null);
 
-        // A API retorna as URLs das imagens como um array de strings
         const { data, error: fetchError } = await protectedFetch('/admin/maquinas');
         
         if (data && data.maquinas) {
@@ -103,8 +98,6 @@ function Dashboard() {
         }
     }, [token, fetchMachines]); 
 
-    // --- FUNÇÕES DE INPUT E CRIAÇÃO ---
-
     const handleInputChange = (e, type = 'add') => {
         const { name, value } = e.target;
         if (type === 'add') {
@@ -114,7 +107,6 @@ function Dashboard() {
         }
     };
     
-    // 🟢 PASSO 1 DE CRIAÇÃO: Criar o registo de texto e obter o ID
     const handleCreateMachineRecord = async () => {
         const { nome, descricao } = newMachineData;
 
@@ -134,13 +126,11 @@ function Dashboard() {
         setIsCreating(false);
 
         if (data && data.maquina_id) {
-            // Sucesso! Passa para o Passo 2: Upload de imagens
             setCreateMessage({ type: 'success', text: `Máquina criada (ID: ${data.maquina_id}). Agora, adicione imagens.` });
             setNewMachineData(prev => ({ 
                 ...prev, 
                 temp_maquina_id: data.maquina_id 
             }));
-            // O modal permanece aberto
         } else if (createError) {
             setCreateMessage({ type: 'error', text: `Erro ao criar registo: ${createError}` });
         } else {
@@ -148,9 +138,7 @@ function Dashboard() {
         }
     };
     
-    // 🟢 PASSO 2 DE CRIAÇÃO: Lida com o sucesso do upload da imagem
     const handleImageUploadSuccess = (newUrl) => {
-        // Adiciona o URL à lista (apenas para visualização/contagem no modal)
         setNewMachineData(prev => {
             const updatedUrls = [...prev.uploaded_image_urls, newUrl];
             setCreateMessage({ type: 'success', text: `Imagem adicionada! Total: ${updatedUrls.length}` });
@@ -159,17 +147,14 @@ function Dashboard() {
                 uploaded_image_urls: updatedUrls
             };
         });
-        fetchMachines(); // Recarrega a lista para mostrar a alteração na tabela
+        fetchMachines();
     };
 
-    // 🟢 Finaliza o processo, fecha o modal, e limpa os estados
     const finalizeCreation = () => {
         setIsAddModalOpen(false);
         setNewMachineData(initialNewMachineState);
         setCreateMessage({ type: null, text: '' });
     };
-
-    // --- LÓGICA DE ELIMINAÇÃO (MANTIDA) ---
 
     const openDeleteDialog = (machineId) => {
         setMachineToDeleteId(machineId);
@@ -212,10 +197,7 @@ function Dashboard() {
         }
     };
 
-    // --- LÓGICA DE EDIÇÃO (MANTIDA) ---
-
     const openEditDialog = (machine) => {
-        // Pré-preencher o estado de edição com os dados da máquina selecionada
         setMachineToEditData(machine);
         setEditMessage({ type: null, text: '' });
         setIsEditModalOpen(true);
@@ -230,18 +212,13 @@ function Dashboard() {
     const handleEditMachine = async () => {
         const { id, nome, descricao } = machineToEditData;
         
-        // Validação mínima
         if (!nome || !descricao) {
             setEditMessage({ type: 'error', text: 'Nome e Descrição são obrigatórios.' });
             return;
         }
-
         setIsUpdating(true);
         setEditMessage({ type: null, text: '' });
-        
-        // Envia PUT para /admin/maquinas/<id> com os dados atualizados
         const endpoint = `/admin/maquinas/${id}`;
-        
         const { data, error: updateError } = await protectedFetch(endpoint, {
             method: 'PUT',
             data: { nome, descricao } 
@@ -251,7 +228,7 @@ function Dashboard() {
 
         if (data && data.message) {
             setEditMessage({ type: 'success', text: data.message });
-            fetchMachines(); // Recarregar a lista
+            fetchMachines();
             
             setTimeout(() => {
                 closeEditDialog();
@@ -264,8 +241,6 @@ function Dashboard() {
         }
     };
 
-    // -----------------------------------
-
     return (
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Box sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
@@ -276,7 +251,6 @@ function Dashboard() {
                     Bem-vindo Sr. Engenheiro Jorge. Pode gerir as suas máquinas aqui.
                 </Typography>
                 
-                {/* Botão Adicionar Máquina */}
                 <Button 
                     variant="contained" 
                     color="primary" 
@@ -291,14 +265,12 @@ function Dashboard() {
                     Adicionar Nova Máquina
                 </Button>
 
-                {/* Visualização de Erro Global */}
                 {(globalError || fetchErrorMessage) && (
                     <Alert severity="error" sx={{ mb: 2 }}>
                         {globalError || fetchErrorMessage}
                     </Alert>
                 )}
 
-                {/* Tabela de Máquinas */}
                 <Box>
                     <Typography variant="h5" component="h2" gutterBottom>
                         Listagem de Máquinas
@@ -334,13 +306,10 @@ function Dashboard() {
                                             <TableCell>{machine.nome}</TableCell> 
                                             <TableCell>{machine.descricao.substring(0, 50)}...</TableCell> 
                                             <TableCell>
-                                                {/* 🟢 Renderização da Imagem na Tabela */}
                                                 {machine.imagens && machine.imagens.length > 0
                                                     ? (
                                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                            {/* O URL deve ser o caminho relativo fornecido pelo Flask (e.g., /uploads/image.jpg) */}
                                                             <img 
-                                                                // Usa o primeiro URL da lista de imagens
                                                                 src={machine.imagens[0]} 
                                                                 alt={`Imagem de ${machine.nome}`} 
                                                                 style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: '4px', marginRight: 8 }}
@@ -356,7 +325,6 @@ function Dashboard() {
                                                 }
                                             </TableCell>
                                             <TableCell>
-                                                {/* Botão de Edição (PUT) */}
                                                 <Button 
                                                     size="small" 
                                                     variant="outlined" 
@@ -394,7 +362,6 @@ function Dashboard() {
                 </Button>
             </Box>
 
-            {/* --- MODAL PARA ADICIONAR NOVA MÁQUINA (POST) --- */}
             <Dialog 
                 open={isAddModalOpen} 
                 onClose={() => setIsAddModalOpen(false)}
@@ -423,7 +390,6 @@ function Dashboard() {
                         </Alert>
                     )}
                     
-                    {/* 🟢 PASSO 1: CRIAÇÃO DO REGISTO (Nome/Descrição) */}
                     {newMachineData.temp_maquina_id === null ? (
                         <Box>
                             <TextField
@@ -458,7 +424,7 @@ function Dashboard() {
                             />
                         </Box>
                     ) : (
-                        // 🟢 PASSO 2: UPLOAD DE IMAGEM (Aparece após a criação do registo)
+
                         <Box>
                             <Alert severity="info" sx={{ mb: 2 }}>
                                 Máquina criada com sucesso. Adicione agora as imagens.
@@ -466,13 +432,10 @@ function Dashboard() {
                                 Imagens carregadas nesta sessão: **{newMachineData.uploaded_image_urls.length}**
                             </Alert>
                             <ImageUploader
-                                // Passa o ID da máquina recém-criada para associar a imagem
                                 maquinaId={newMachineData.temp_maquina_id}
                                 onUploadSuccess={handleImageUploadSuccess}
-                                // O endpoint deve corresponder ao que definiste no crud.py
                                 uploadEndpoint={`/admin/maquinas/${newMachineData.temp_maquina_id}/upload-imagem`}
                             />
-                            {/* Visualização de Thumbnails */}
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
                                 {newMachineData.uploaded_image_urls.map((url, index) => (
                                     <img 
@@ -496,9 +459,7 @@ function Dashboard() {
                         Cancelar
                     </Button>
                     
-                    {/* Botão de Criação/Finalização */}
                     {newMachineData.temp_maquina_id === null ? (
-                        // No Passo 1: Criar o registo
                         <Button 
                             onClick={handleCreateMachineRecord} 
                             color="primary" 
@@ -509,7 +470,6 @@ function Dashboard() {
                             {isCreating ? 'A Criar...' : 'Criar Máquina'}
                         </Button>
                     ) : (
-                        // No Passo 2: Finalizar
                         <Button 
                             onClick={finalizeCreation} 
                             color="success" 
@@ -520,9 +480,7 @@ function Dashboard() {
                     )}
                 </DialogActions>
             </Dialog>
-            {/* ------------------------------------------- */}
 
-            {/* --- MODAL PARA EDITAR MÁQUINA (PUT) --- */}
             <Dialog 
                 open={isEditModalOpen} 
                 onClose={closeEditDialog}
@@ -550,7 +508,7 @@ function Dashboard() {
                             {editMessage.text}
                         </Alert>
                     )}
-                    {/* Campos de Texto (Nome e Descrição) */}
+
                     <TextField
                         autoFocus
                         margin="dense"
@@ -580,7 +538,6 @@ function Dashboard() {
                         required
                     />
                     
-                    {/* 🟢 Uploader de Imagem para Edição */}
                     {machineToEditData.id && (
                         <Box>
                             <Typography variant="h6" component="h3" sx={{ mt: 3, mb: 1 }}>
@@ -590,14 +547,13 @@ function Dashboard() {
                                 maquinaId={machineToEditData.id}
                                 onUploadSuccess={() => {
                                     setEditMessage({ type: 'success', text: 'Imagem adicionada com sucesso! Clique em "Atualizar Máquina" para fechar.' });
-                                    fetchMachines(); // Recarrega para mostrar a nova imagem
+                                    fetchMachines();
                                 }}
                                 uploadEndpoint={`/admin/maquinas/${machineToEditData.id}/upload-imagem`}
                             />
                         </Box>
                     )}
                     
-                    {/* 🟢 Pré-visualização das Imagens Existentes */}
                     <Typography variant="h6" component="h3" sx={{ mt: 3, mb: 1 }}>
                         Imagens Existentes ({machineToEditData.imagens ? machineToEditData.imagens.length : 0})
                     </Typography>
@@ -632,9 +588,7 @@ function Dashboard() {
                     </Button>
                 </DialogActions>
             </Dialog>
-            {/* ------------------------------------------- */}
 
-            {/* --- MODAL DE CONFIRMAÇÃO DE ELIMINAÇÃO (MANTIDO) --- */}
             <Dialog 
                 open={isDeleteModalOpen} 
                 onClose={closeDeleteDialog}
@@ -675,7 +629,6 @@ function Dashboard() {
                     </Button>
                 </DialogActions>
             </Dialog>
-            {/* ---------------------------------------------------- */}
         </Container>
     );
 }

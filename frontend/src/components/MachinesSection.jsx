@@ -3,20 +3,17 @@ import { Typography, Container, Grid, Card, CardMedia, CardContent, CardActions,
 import MachineDetailsDialog from './MachineDetailsDialog';
 
 const PLACEHOLDER_URL = 'https://via.placeholder.com/200/90A4AE/FFFFFF?text=Sem+Imagem';
-
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 };
 
 function MachinesSection({ searchTerm, setSearchTerm }) { 
-
   const [apiMachines, setApiMachines] = useState([]);
   const [isLoading, setIsLoading] = useState(true); 
   const [error, setError] = useState(null); 
   
   useEffect(() => {
     const API_URL = '/api/'; 
-
     fetch(API_URL)
       .then(response => {
         if (!response.ok) {
@@ -25,7 +22,6 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
         return response.json();
       })
       .then(data => {
-        
         const machinesWithImages = data.map(m => {
             const imageUrl = (m.imagens && m.imagens.length > 0) 
                              ? m.imagens[0] 
@@ -37,8 +33,7 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
                 imageUrl: imageUrl,
                 images: m.imagens || [],
             };
-        });
-        
+        });       
         setApiMachines(machinesWithImages);
         setIsLoading(false);
       })
@@ -80,7 +75,7 @@ function MachinesSection({ searchTerm, setSearchTerm }) {
       return (
         <Container maxWidth="lg">
           <Typography variant="h6" align="center" sx={{ mt: 6 }}>
-            A carregar stock...
+            A carregar stock... 
           </Typography>
         </Container>
       );

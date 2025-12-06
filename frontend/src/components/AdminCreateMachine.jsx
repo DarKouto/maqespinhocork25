@@ -5,13 +5,11 @@ function AdminCreateMachine() {
   const [formData, setFormData] = useState({
     nome: '',
     descricao: '',
-    // Nota: O campo 'imagem' será adicionado mais tarde.
   });
-  const [status, setStatus] = useState(null); // 'success', 'error', 'loading'
+  const [status, setStatus] = useState(null);
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
 
-  // 1. Lógica de Validação (Obrigatório)
   const validate = () => {
     const newErrors = {};
     if (!formData.nome.trim()) {
@@ -26,7 +24,6 @@ function AdminCreateMachine() {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    // Limpa o erro ao digitar
     setErrors(prevErrors => ({ ...prevErrors, [id]: '' }));
     setFormData((prevData) => ({
       ...prevData,
@@ -34,7 +31,6 @@ function AdminCreateMachine() {
     }));
   };
   
-  // 2. Lógica de Submissão com JWT
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('loading');
@@ -46,7 +42,6 @@ function AdminCreateMachine() {
       return;
     }
     
-    // Obter o token JWT do localStorage (assumindo que o login foi feito)
     const token = localStorage.getItem('access_token');
     
     if (!token) {
@@ -60,7 +55,6 @@ function AdminCreateMachine() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Incluir o token de autorização
           'Authorization': `Bearer ${token}`, 
         },
         body: JSON.stringify(formData),
@@ -71,12 +65,10 @@ function AdminCreateMachine() {
       if (response.ok) {
         setStatus('success');
         setMessage(result.message || 'Máquina adicionada com sucesso!');
-        // Limpar o formulário
         setFormData({ nome: '', descricao: '' }); 
         setErrors({});
       } else {
         setStatus('error');
-        // Usar a mensagem de erro que o Flask possa ter devolvido
         setMessage(result.error || 'Falha ao adicionar a máquina.');
       }
     } catch (error) {
@@ -132,10 +124,6 @@ function AdminCreateMachine() {
             error={!!errors.descricao}
             helperText={errors.descricao}
           />
-
-          {/* O campo de IMAGEM será adicionado NESTE local mais tarde */}
-          {/* <input type="file" ... /> */}
-
           <Button
             type="submit"
             variant="contained"

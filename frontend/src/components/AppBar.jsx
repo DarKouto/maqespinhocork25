@@ -24,9 +24,7 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
-  // NOVOS IMPORTS PARA O OLHO DA PASSWORD
   InputAdornment, 
-  // FIM DOS NOVOS IMPORTS
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
@@ -35,19 +33,12 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
 import LogoutIcon from '@mui/icons-material/Logout'; 
 import DashboardIcon from '@mui/icons-material/Dashboard';
-// NOVOS IMPORTS PARA O OLHO DA PASSWORD
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-// FIM DOS NOVOS IMPORTS
 import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
-
-// IMPORT DO CONTEXTO DE AUTENTICAÇÃO
 import { useAuth } from '../AuthContext'; 
-
-
-// ... (Styled components Search, SearchIconWrapper, StyledInputBase permanecem inalterados) ...
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -86,25 +77,17 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 function AppBar({ searchTerm, setSearchTerm }) {
-  // HOOKS DO CONTEXTO E NAVEGAÇÃO
   const { isAuthenticated, login, logout, loading, error, setError } = useAuth();
   const navigate = useNavigate();
-
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  // NOVO ESTADO: para controlar a visibilidade da password
   const [showPassword, setShowPassword] = useState(false); 
-
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  // Handler para fechar Snackbar
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
-    // Limpar o erro do contexto se for o caso
-    // if (error) { setError(null); }
   };
 
   const handleDrawerToggle = () => {
@@ -112,17 +95,13 @@ function AppBar({ searchTerm, setSearchTerm }) {
   };
 
   const handleClickOpenLoginDialog = () => {
-    // Reset do formulário quando abre
     setLoginForm({ username: '', password: '' });
-    // Reset do estado do olho
     setShowPassword(false); 
     setOpenLoginDialog(true);
   };
 
   const handleCloseLoginDialog = () => {
     setOpenLoginDialog(false);
-    // Limpar o erro ao fechar o diálogo
-    // if (error) { setError(null); }
   };
   
   const handleFormChange = (e) => {
@@ -130,17 +109,14 @@ function AppBar({ searchTerm, setSearchTerm }) {
     setLoginForm(prev => ({ ...prev, [id]: value }));
   };
 
-  // NOVA FUNÇÃO: Alternar a visibilidade da password
   const handleClickShowPassword = () => {
     setShowPassword((show) => !show);
   };
 
-  // NOVA FUNÇÃO: Prevenir o foco/submissão quando clica no botão do olho
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
 
-  // FUNÇÃO DE LOGIN LIGADA AO CONTEXTO
   const handleLogin = async () => {
     if (!loginForm.username || !loginForm.password) {
       alert("Preencha ambos os campos.");
@@ -157,13 +133,11 @@ function AppBar({ searchTerm, setSearchTerm }) {
     }
   };
   
-  // FUNÇÃO DE LOGOUT
   const handleLogout = () => {
     logout();
     setSnackbarOpen(true);
   };
   
-  // NAVEGAÇÃO PARA ADMIN (quando autenticado)
   const handleAdminClick = () => {
     navigate('/admin');
   };
@@ -183,7 +157,6 @@ function AppBar({ searchTerm, setSearchTerm }) {
   const navItems = [
     { name: 'Máquinas', path: '/', icon: <SettingsIcon /> },
     { name: 'Contactos', path: '/contactos', icon: <PermContactCalendarIcon /> },
-    // Adicionar Admin/Dashboard ao menu de navegação, se autenticado
     ...(isAuthenticated ? [{ name: 'Dashboard', path: '/admin', icon: <DashboardIcon /> }] : []),
   ];
 
@@ -206,7 +179,6 @@ function AppBar({ searchTerm, setSearchTerm }) {
             </ListItemButton>
           </ListItem>
         ))}
-        {/* OPÇÃO DE LOGOUT NO MENU MOBILE SE AUTENTICADO */}
         {isAuthenticated && (
           <ListItem disablePadding>
             <ListItemButton onClick={handleLogout} sx={{ textAlign: 'center' }}>
@@ -284,7 +256,6 @@ function AppBar({ searchTerm, setSearchTerm }) {
             </Search>
           </Box>
           <Box sx={{ ml: { xs: 'auto', sm: 0 } }}>
-            {/* Ícone de Login/Logout/Dashboard */}
             <IconButton
               size="large"
               edge="end"
@@ -295,7 +266,6 @@ function AppBar({ searchTerm, setSearchTerm }) {
               {isAuthenticated ? <DashboardIcon /> : <AccountCircle />}
             </IconButton>
             
-            {/* Se autenticado, mostramos o botão de Logout aqui no desktop */}
             {isAuthenticated && (
                 <IconButton
                     size="large"
@@ -303,15 +273,11 @@ function AppBar({ searchTerm, setSearchTerm }) {
                     color="inherit"
                     aria-label="Logout"
                     onClick={handleLogout}
-                    sx={{ display: { xs: 'none', sm: 'inline-flex' } }} // Só desktop
+                    sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
                 >
                     <LogoutIcon />
                 </IconButton>
-            )}
-            
-            {/* REMOVIDO: O botão de texto "Login" (desktop) */}
-            {/* O ícone AccountCircle acima já lida com o clique para abrir o diálogo de login */}
-
+            )}        
           </Box>
         </Toolbar>
       </Container>
@@ -331,7 +297,6 @@ function AppBar({ searchTerm, setSearchTerm }) {
           {drawer}
         </Drawer>
       </nav>
-      {/* Diálogo de Login */}
       <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog} component="form" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
         <DialogTitle>Login de Administrador</DialogTitle>
         <DialogContent>
@@ -351,7 +316,6 @@ function AppBar({ searchTerm, setSearchTerm }) {
             margin="dense"
             id="password" 
             label="Password"
-            // TIPO: Alterna entre 'text' e 'password'
             type={showPassword ? 'text' : 'password'}
             fullWidth
             variant="standard"
@@ -359,7 +323,6 @@ function AppBar({ searchTerm, setSearchTerm }) {
             onChange={handleFormChange}
             error={!!error}
             helperText={error}
-            // ADORNMENT DO INPUT PARA O BOTÃO DO OLHO
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -368,7 +331,6 @@ function AppBar({ searchTerm, setSearchTerm }) {
                     onClick={handleClickShowPassword}
                     onMouseDown={handleMouseDownPassword}
                     edge="end"
-                    // Colorimos o ícone de vermelho se houver erro
                     color={error ? "error" : "default"} 
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -390,8 +352,7 @@ function AppBar({ searchTerm, setSearchTerm }) {
           </Button>
         </DialogActions>
       </Dialog>
-      
-      {/* Snackbar para Feedback de Login/Logout */}
+
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={error ? "error" : "success"} sx={{ width: '100%' }}>
           {error 

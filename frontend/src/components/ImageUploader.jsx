@@ -6,27 +6,21 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useAuth } from '../AuthContext'; 
 
 /**
- * Componente para fazer upload de uma imagem e associá-la a um ID de máquina.
- * @param {number} maquinaId - O ID da máquina alvo para o upload.
- * @param {function} onUploadSuccess - Callback chamado quando o upload é bem-sucedido.
- * @param {string} uploadEndpoint - O endpoint de upload no backend (e.g., '/admin/maquinas/1/upload-imagem').
+ * @param {number} maquinaId 
+ * @param {function} onUploadSuccess
+ * @param {string} uploadEndpoint
  */
+
 function ImageUploader({ maquinaId, onUploadSuccess, uploadEndpoint }) {
     const { protectedFetch } = useAuth();
     
-    // Estado para o ficheiro selecionado
     const [selectedFile, setSelectedFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadMessage, setUploadMessage] = useState({ type: null, text: '' });
-    
-    // Referência para o input de ficheiro (para poder ser clicado via botão)
     const fileInputRef = useRef(null);
-
-    // Lida com a seleção de ficheiros
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
-            // Verifica o tamanho (limite razoável de 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 setUploadMessage({ type: 'error', text: 'O ficheiro deve ser inferior a 5MB.' });
                 setSelectedFile(null);
@@ -37,52 +31,38 @@ function ImageUploader({ maquinaId, onUploadSuccess, uploadEndpoint }) {
         }
     };
     
-    // Inicia o processo de upload
     const handleUpload = async () => {
         if (!selectedFile) {
             setUploadMessage({ type: 'warning', text: 'Por favor, selecione um ficheiro primeiro.' });
             return;
         }
-
         setIsUploading(true);
         setUploadMessage({ type: null, text: '' });
-
-        // FormData é necessário para enviar ficheiros via Fetch API
         const formData = new FormData();
-        // A chave 'file' deve corresponder exatamente ao que o Flask espera: request.files['file']
         formData.append('file', selectedFile);
-
-        // O endpoint já é passado com o ID da máquina
         const { data, error: uploadError } = await protectedFetch(uploadEndpoint, {
             method: 'POST',
-            
-            // 🛑 CORREÇÃO CRÍTICA: Mudar 'body' para 'data'. O protectedFetch usa axios, que espera 'data'.
             data: formData, 
-            
-            // 🛑 REMOVER: A flag 'isFormData: true' é desnecessária. O protectedFetch deteta FormData no campo 'data' e ajusta os cabeçalhos.
-            // isFormData: true 
         });
 
         setIsUploading(false);
 
         if (data && data.message) {
             setUploadMessage({ type: 'success', text: data.message || 'Imagem carregada!' });
-            onUploadSuccess(data.url); // Chama o callback com o novo URL
-            setSelectedFile(null); // Limpa o input
+            onUploadSuccess(data.url);
+            setSelectedFile(null);
         } else if (uploadError) {
-            // O uploadError é agora uma string formatada no AuthContext, eliminando o "[object Object]"
             setUploadMessage({ type: 'error', text: `Erro no upload: ${uploadError}` });
         } else {
             setUploadMessage({ type: 'error', text: 'Erro desconhecido durante o upload.' });
         }
     };
     
-    // Remove o ficheiro selecionado
     const handleRemoveFile = () => {
         setSelectedFile(null);
         setUploadMessage({ type: null, text: '' });
         if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // Limpa o input de ficheiro
+            fileInputRef.current.value = "";
         }
     };
 

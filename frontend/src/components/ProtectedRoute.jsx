@@ -5,7 +5,6 @@ import { CircularProgress, Box } from '@mui/material';
 function ProtectedRoute({ element: Component, ...rest }) {
   const { isAuthenticated, loading } = useAuth();
 
-  // 1. Mostrar spinner se estiver a carregar
   if (loading) {
     return (
       <Box 
@@ -22,12 +21,10 @@ function ProtectedRoute({ element: Component, ...rest }) {
     );
   }
 
-  // 2. Redirecionar se não estiver autenticado
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
-  // 3. Renderizar o componente (Dashboard)
   return <Component {...rest} />;
 }
 

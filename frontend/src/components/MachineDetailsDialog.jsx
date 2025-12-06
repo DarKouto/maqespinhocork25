@@ -17,8 +17,6 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
     return null;
   }
 
-  // 🚨 ALTERAÇÃO CRÍTICA: Usa o array 'images' que agora é populado pela API ou hardcode.
-  // Garante que, se 'images' estiver vazio, pelo menos a imagem principal ('imageUrl') é usada.
   const machineImages = (machine.images && machine.images.length > 0)
     ? machine.images
     : [machine.imageUrl];
@@ -33,14 +31,12 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + machineImages.length) % machineImages.length);
   };
   
-  // Reset do índice ao abrir o diálogo
   useEffect(() => {
     if (open) {
       setCurrentImageIndex(0);
     }
   }, [open]);
 
-  // Se, por algum motivo, o array de imagens estiver vazio (embora não devesse), não renderiza.
   if (machineImages.length === 0) {
       return null; 
   }
@@ -62,7 +58,6 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
             p: 1
           }}>
           
-          {/* Botão Anterior - Visível apenas se houver mais de uma imagem */}
           {machineImages.length > 1 && (
             <IconButton
               onClick={handlePrevImage}
@@ -90,12 +85,10 @@ function MachineDetailsDialog({ machine, open, handleClose }) {
               height: 'auto', 
               borderRadius: 1,
               objectFit: 'contain',
-              // Altura responsiva para telemóveis
               height: { xs: '30vh', sm: '40vh', md: '50vh' },
             }}
           />
 
-          {/* Botão Seguinte - Visível apenas se houver mais de uma imagem */}
           {machineImages.length > 1 && (
             <IconButton
               onClick={handleNextImage}
