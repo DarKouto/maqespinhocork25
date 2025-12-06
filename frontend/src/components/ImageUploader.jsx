@@ -21,6 +21,8 @@ function ImageUploader({ maquinaId, onUploadSuccess, uploadEndpoint }) {
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            
+            // TAMANHO MINIMO DE IMAGEM 5mb ?
             if (file.size > 5 * 1024 * 1024) {
                 setUploadMessage({ type: 'error', text: 'O ficheiro deve ser inferior a 5MB.' });
                 setSelectedFile(null);
