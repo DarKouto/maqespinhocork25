@@ -18,29 +18,22 @@ from .crud import crud_bp
 # CONFIGS
 app = Flask(__name__)
 CORS(app)
-# Carrega as configurações (incluindo as DB e JWT)
 app.config.from_object(Config)
+db.init_app(app)
+app.register_blueprint(auth_bp)
+app.register_blueprint(crud_bp)
+mail = Mail(app)
+jwt = JWTManager(app)
+EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
-# CONFIGURAÇÃO GLOBAL DO CLOUDINARY
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
-
 if CLOUDINARY_URL:
     cloudinary.config(
-        secure=True # Usa HTTPS
+        secure=True
     )
     print("DEBUG FLASK: Cloudinary configurado usando CLOUDINARY_URL.")
 else:
     print("DEBUG FLASK: ATENÇÃO! Variável CLOUDINARY_URL não encontrada. O upload de imagens falhará.")
-
-db.init_app(app)
-
-# REGISTO DOS BLUEPRINTS
-app.register_blueprint(auth_bp)
-app.register_blueprint(crud_bp) 
-
-mail = Mail(app)
-jwt = JWTManager(app)
-EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 #################
 ####  ROTAS  ####
@@ -49,27 +42,22 @@ EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 # HOME / INDEX (API para o frontend)
 @app.route('/api/', methods=['GET'])
 def machines_api():
-    """Retorna a lista de máquinas para o frontend (página inicial) com URLs de imagem."""
     maquinas = Maquinas.query.all()
     lista_maquinas = []
     for maquina in maquinas:
-        # 🚨 ALTERAÇÃO CRÍTICA: Incluir as URLs das imagens da relação Maquinas.imagens
-        # Assume-se que 'maquina.imagens' é uma relação que contém objetos com o campo 'url_imagem'
         imagens_urls = [img.url_imagem for img in maquina.imagens]
         
         lista_maquinas.append({
             'id': maquina.id,
             'nome': maquina.nome,
             'descricao': maquina.descricao,
-            'imagens': imagens_urls # <-- Agora o frontend pode aceder a isto!
+            'imagens': imagens_urls
         })
     return jsonify(lista_maquinas)
 
 # CONTACTOS / E-MAIL
 @app.route('/contactos', methods=['GET', 'POST'])
 def contactos():
-    """Lida com o formulário de contacto e envia o e-mail."""
-    # (Resto da função contactos...)
     if request.method == 'POST':
         if not request.is_json:
             return jsonify({"error": "O tipo de conteúdo deve ser application/json"}), 400
@@ -79,7 +67,6 @@ def contactos():
         email = dados_email.get('email')
         mensagem = dados_email.get('mensagem')
         
-        # 1. VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
         if not nome or not nome.strip():
             return jsonify({"error": "O campo 'nome' é obrigatório."}), 400
         if not email or not email.strip():
@@ -87,7 +74,6 @@ def contactos():
         if not mensagem or not mensagem.strip():
             return jsonify({"error": "O campo 'mensagem' é obrigatório."}), 400
             
-        # 2. VALIDAÇÃO DO FORMATO DE EMAIL
         if not re.fullmatch(EMAIL_REGEX, email.strip()):
             return jsonify({"error": "O endereço de email fornecido não é válido."}), 400
         
@@ -139,7 +125,6 @@ def admin_logout():
 
 # INICIAR APP
 if __name__ == '__main__':
-    # Garante que as variáveis de ambiente (incluindo CLOUDINARY_URL) são lidas
     from dotenv import load_dotenv
     load_dotenv()
-    app.run(debug=True)
+    app.run()

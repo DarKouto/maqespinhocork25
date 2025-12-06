@@ -5,9 +5,6 @@ class Maquinas(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     descricao = db.Column(db.Text, nullable=False)
-    
-    # Relação com Imagens. O 'cascade' é CRÍTICO para apagar imagens
-    # se a máquina for apagada (ON DELETE CASCADE)
     imagens = db.relationship('Imagens', backref='maquina', lazy=True, cascade="all, delete-orphan")
     
     def __repr__(self):
@@ -16,9 +13,7 @@ class Maquinas(db.Model):
 class Imagens(db.Model):
     __tablename__ = 'imagens'
     id = db.Column(db.Integer, primary_key=True)
-    # Aumentado para 500 para URLs Cloudinary mais longas
     url_imagem = db.Column(db.String(500), nullable=False) 
-    # Campo crucial para o delete no Cloudinary
     public_id = db.Column(db.String(255), nullable=True) 
     maquina_id = db.Column(db.Integer, db.ForeignKey('maquinas.id'), nullable=False)
     def __repr__(self):
