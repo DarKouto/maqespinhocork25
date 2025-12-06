@@ -1,4 +1,3 @@
-// VERSION 0.86
 import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom'; 
 import { ThemeProvider } from '@mui/material/styles';

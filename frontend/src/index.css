@@ -1,13 +1,12 @@
-/* src/index.css */
 html, body, #root {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden; /* Para evitar scroll horizontal indesejado */
+  overflow-x: hidden;
 }
 
 body {
-  max-width: 100vw; /* Garante que ocupa a largura total da viewport */
-  box-sizing: border-box; /* Garante que padding e border estão incluídos na largura/altura */
+  max-width: 100vw;
+  box-sizing: border-box;
 }
